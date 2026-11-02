@@ -1,4 +1,3 @@
-# v0.2.16
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 """FLOWFAULT: accountable two-worker handoffs with AI consensus and scoped rework.
 A claim of worker identity is the wallet signer, not independent AI-agent attestation.
