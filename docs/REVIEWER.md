@@ -1,6 +1,6 @@
 # FLOWFAULT — GenLayer Project Reviewer Guide
 
-**Status: both contracts deployed and cross-contract linkage verified on Studionet 61999 (2026-11-05).** Finalized readbacks: 0 cases, 0 rework receipts. [Preflight PASS](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799). This establishes deployment and source integrity, not completed signed workflow or AI adjudication.
+**Status: source/schema and linkage verified; full positive-path signed Studio execution recorded on 2026-11-05.** Case #1 persisted `DECIDED / REWORK_B`; RecoveryGate receipt #1 persisted `REWORK_SUBMITTED_NOT_VERIFIED`. [Full real transaction ledger](ONCHAIN_EVIDENCE.md) · [preflight](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799). Certain negative tests remain undocumented and must not be claimed.
 
 Project: https://github.com/bearbaba/FLOWFAULT
 Website: https://flowfault-khaiptk1998-8088s-projects.vercel.app
@@ -28,13 +28,15 @@ An owner freezes an agreement and input source. Two separate worker wallets sign
 
 Browser: src/main.js; deterministic workers: lib/workers.js; pure state verification: lib/verification.js. Backend: api/state.js allowlisted finalized reads, api/tx.js verifies transaction execution. The source and worker data remain synthetic and public; no confidential jobs, wages or real dispute decisions.
 
-## Signed-workflow demonstration sequence
+## Signed Studio acceptance (performed)
 
-1. Three wallets: case owner, Worker A, Worker B (distinct). Owner signs fixture case; approved sum is 20.
-2. A signs the generated total 20. B signs injected-fault total 27. Owner signs dispute.
-3. Run actual GenLayer comparative adjudication and observe its persisted output. REWORK_B is the expected interpretation, not a preprogrammed verdict; if UNVERIFIABLE, investigate, never fake.
-4. For an actual REWORK_B, only B signs corrected report total 20. Gate stores REWORK_SUBMITTED_NOT_VERIFIED. A attempts unauthorized revision and is rejected; duplicate attempt rejected; unchanged hash rejected.
-5. Separate missing-evidence and ambiguous cases must not authorize a recovery. Record any actual signed errors and persisted state, source fidelity, explorer links and video.
+- Owner created Case #1, Worker A signed total `20`, Worker B signed intentionally incorrect total `27`, owner opened a dispute.
+- GenLayer comparative AI adjudication returned and persisted `REWORK_B` with consensus `Accepted` and GenVM `SUCCESS`.
+- RecoveryGate authorized Worker B only and persisted receipt #1 for a corrected submitted total `20` with status `REWORK_SUBMITTED_NOT_VERIFIED`.
+- A separate owner/worker address collision attempt was finalized with GenVM rollback (real negative test).
+- [Transaction-by-transaction evidence and latest-final readback](ONCHAIN_EVIDENCE.md).
+
+Additional signer-denial, duplicate-rework rejection, unchanged-hash rejection, ambiguous outcome and web video have not been evidenced; they should be described only after performing and recording them.
 
 ## Disclosures
 
