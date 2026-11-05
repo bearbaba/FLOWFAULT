@@ -54,3 +54,72 @@ input:focus,textarea:focus,select:focus{border-color:#61a786;box-shadow:0 0 0 3p
 @media(max-width:700px){body:has(.activity.engaged) .content{padding-bottom:280px}.activity.engaged{position:fixed;left:0;right:0;bottom:0;width:100%;z-index:10;max-height:42vh}.activity:not(.engaged){position:sticky;bottom:0}}
 
 .caseComplete{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.caseComplete button{min-height:35px;padding:8px 12px;background:#fff;border-color:#bcddc7;color:#126344}
+
+
+/* Task-first workspace: clear next action, less visual noise, accessible mobile workflow. */
+:root{--brand:#176a54;--ink:#173d34;--muted:#6b857a;--line:#e2ebe5}
+.content{max-width:1130px;padding-top:38px}
+.caseBar{margin:18px 0 12px}
+.caseBarTop strong{font-size:20px}
+.taskGuide{position:relative;background:#163f34;border:1px solid #205644;border-radius:18px;padding:24px 26px;color:#fff;margin:14px 0 13px;box-shadow:0 13px 35px #163f3414;overflow:hidden}
+.taskGuide:after{content:"";position:absolute;right:-45px;top:-75px;width:215px;height:215px;border-radius:50%;border:38px solid #ffffff0b;pointer-events:none}
+.guideHead{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.guideHead .eyebrow{color:#b4dac8}
+.guideTag{border:1px solid #ffffff35;background:#ffffff13;color:#d6f2e2;padding:6px 10px;font-size:10px;font-weight:800;letter-spacing:.06em;border-radius:30px}
+.taskGuide h2{font:800 25px/1.24 Manrope,sans-serif;letter-spacing:-.04em;margin:14px 0 7px;position:relative;z-index:1}
+.taskGuide p{color:#c6e1d4;font-size:13px;line-height:1.65;max-width:620px;margin:0;position:relative;z-index:1}
+.guideButtons{display:flex;gap:10px;flex-wrap:wrap;margin-top:19px;position:relative;z-index:1}
+.guideButtons .primary{background:#c8f1db;color:#124937;border-color:#c8f1db;box-shadow:none}
+.guideButtons .primary:not(:disabled):hover{background:#e3f7ea}
+.guideButtons .outline{background:#ffffff13;color:#e8fff3;border-color:#ffffff50}
+.guideButtons .outline:hover{background:#ffffff25!important}
+.caseFinder{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:10px 3px 18px;margin-bottom:0}
+.caseFinder label{font-size:11px;color:#78978a;font-weight:800;white-space:nowrap}
+.caseFinder input{width:94px;padding:10px 11px;min-height:39px;font-size:13px;background:#fff}
+.caseFinder button{padding:9px 12px;min-height:39px}
+.caseFinder span{font-size:11px;color:#a0b2a7;margin-left:auto}
+.stepNav{margin-top:10px}
+.step{min-height:70px;padding:11px 6px;border-radius:10px}
+.stepIntro{background:#fff;padding:21px 24px}
+.stepIntro h2{font-size:22px}
+.stepIntro .roleSwitch{margin-top:13px;display:inline-flex;min-height:38px;padding:8px 12px}
+.action{padding:22px 24px}
+.actionTop .pill{background:#edf6f0;color:#246652;letter-spacing:0;font-size:11px}
+.actionHelp{font-size:12px;line-height:1.6;color:#6d857a;margin:13px 0 4px}
+.taskTemplate{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid #d6e9dc;background:#f3faf5;border-radius:13px;padding:14px 16px;margin:16px 0 9px}
+.taskTemplate strong{font:750 13px Manrope,sans-serif;color:#214e40}
+.taskTemplate p{font-size:11px;color:#628675;line-height:1.5;margin:4px 0 0;max-width:450px}
+.taskTemplate button{white-space:nowrap;background:#fff}
+.fieldGrid{gap:15px;margin-top:15px}
+.fieldGrid label{font-size:12px;color:#537667}
+input,textarea,select{background:#fff;border-color:#d6e5dc}
+input:focus,textarea:focus,select:focus{background:#fff}
+.actions{justify-content:flex-start}
+.actions .signAction{min-width:147px}
+.readSummary{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:10px;margin:18px 0 14px}
+.readTile{border:1px solid #dcebe1;background:#f5faf6;border-radius:12px;padding:13px 12px;display:flex;flex-direction:column;gap:8px;min-width:0;overflow-wrap:anywhere}
+.readTile span{font-size:10px;font-weight:750;color:#769184}
+.readTile strong{font-size:13px;font-weight:800;color:#1a6047}
+.output{max-height:320px;font-size:11px;background:#f8fbf9;border-radius:11px}
+.activityIcon{margin:25px 0 16px;width:44px;height:44px}
+.activity{padding:25px 18px}
+.activity h2{font-size:18px}
+.activity .pipeline{margin-top:22px}
+.caseComplete{background:#f0faf2;border-color:#bce3cc;font-size:12px}
+@media(max-width:1000px){
+ .content{padding-top:30px}
+ .activity{padding:20px 25px}
+ .guideButtons .primary{min-width:180px}
+}
+@media(max-width:700px){
+ .content{padding-top:26px}
+ .taskGuide{padding:20px;margin-top:12px}
+ .taskGuide h2{font-size:22px}
+ .taskTemplate{align-items:flex-start;flex-direction:column}
+ .taskTemplate button{width:100%}
+ .caseFinder span{flex-basis:100%;margin-left:0}
+ .stepIntro,.action{padding:18px}
+ .readSummary{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .guideButtons{flex-direction:column}
+ .guideButtons button{width:100%}
+}
