@@ -1,8 +1,11 @@
 # FLOWFAULT — GenLayer Project Reviewer Guide
 
-**Status: source / unsigned preflight phase. No contracts deployed, signed worker evidence or AI verdicts yet.**
+**Status: both contracts deployed and cross-contract linkage verified on Studionet 61999 (2026-11-05).** Finalized readbacks: 0 cases, 0 rework receipts. [Preflight PASS](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799). This establishes deployment and source integrity, not completed signed workflow or AI adjudication.
 
 Project: https://github.com/bearbaba/FLOWFAULT
+Website: https://flowfault-khaiptk1998-8088s-projects.vercel.app
+Court: `0x02A5476d786f55a215B33d77bdb071acB787182b`
+Gate: `0xBccDbe2906E9ef6Fd028018BDD892D820681c4d8`
 Network: GenLayer Studionet 61999.
 
 ## Distinct problem and actual work
@@ -25,7 +28,7 @@ An owner freezes an agreement and input source. Two separate worker wallets sign
 
 Browser: src/main.js; deterministic workers: lib/workers.js; pure state verification: lib/verification.js. Backend: api/state.js allowlisted finalized reads, api/tx.js verifies transaction execution. The source and worker data remain synthetic and public; no confidential jobs, wages or real dispute decisions.
 
-## Required signed proof (NOT YET PERFORMED)
+## Signed-workflow demonstration sequence
 
 1. Three wallets: case owner, Worker A, Worker B (distinct). Owner signs fixture case; approved sum is 20.
 2. A signs the generated total 20. B signs injected-fault total 27. Owner signs dispute.

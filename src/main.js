@@ -303,9 +303,9 @@ async function refreshConfig(){
     const r=await fetch('/api/state?op=config',{cache:'no-store'});
     config=await r.json();
     if(!r.ok)throw Error('Config unavailable');
-    $('network').textContent=config.configured?'Studionet 61999 · addresses configured':'Studio deployment pending';
+    $('network').textContent=config.configured?'Studionet 61999 · Court/Gate linked':'Studio deployment pending';
     $('network').classList.toggle('pending',!config.configured);
-    $('deploymentState').textContent=config.configured?'CONFIG':'SOURCE';
+    $('deploymentState').textContent=config.configured?'LINKED':'SOURCE';
     if(!config.configured)notice('Waiting for Studio deployment','Both contracts need deployment, addresses and readback preflight before wallet signing.');
   }catch(e){
     config={configured:false};
