@@ -308,6 +308,12 @@ async function validateCaseWrite(f,values){
     else if(signer===norm(c.worker_b)){
       if(!c.a_sha256)throw Error('Worker A must sign evidence first.');
       if(c.b_sha256)throw Error('Worker B evidence already frozen.');
+      if(c.task_spec.includes('reportedTotal')&&c.task_spec.includes('approvedTotal')){
+        let report;try{report=JSON.parse(values[1])}catch{throw Error('Worker B needs a JSON report with reportedTotal and summary.')}
+        if(!Number.isInteger(report?.reportedTotal)||typeof report?.summary!=='string'||!report.summary.trim())
+          throw Error('Worker B report needs integer reportedTotal and summary. Choose Generate faulty Worker B (27) for the demo.');
+        if(values[1]===c.a_output)throw Error('Worker B must submit a separate report, not a copy of Worker A.');
+      }
     }else throw Error('Use the assigned Worker A or B wallet.');
   }else if(f.key==='open_dispute'){
     if(signer!==norm(c.owner))throw Error('Use the case owner wallet.');
@@ -432,18 +438,32 @@ async function verifyRecord(record){
   }
   return {ok:false};
 }
+function updateReadFields(){
+ const mode=project.reads[Number($('readMethod').value)]?.[3]||'id';
+ $('readId').closest('label').hidden=mode==='none';
+ $('readOther').closest('label').hidden=!['two','actor3'].includes(mode);
+ $('readActor').closest('label').hidden=!['actor','actor2','actor3'].includes(mode);
+}
 function renderReads(){
-  $('readMethod').innerHTML=project.reads.map((r,i)=>'<option value="'+i+'">'+esc(r[0])+' · '+esc(r[2])+'</option>').join('');
+ $('readMethod').innerHTML=project.reads.map((r,i)=>'<option value="'+i+'">'+esc(r[0])+'</option>').join('');
+ $('readMethod').onchange=updateReadFields;updateReadFields();
 }
 async function handleRead(){
-  const r=project.reads[Number($('readMethod').value)];
-  const primary=numberField($('readId').value||'1');
-  const secondary=numberField($('readOther').value||'1');
-  const actor=$('readActor').value.trim();
-  const args=r[3]==='none'?[]:r[3]==='id'?[primary]:r[3]==='two'?[primary,secondary]:r[3]==='actor2'?[primary,actor]:[primary,secondary,actor];
-  if((r[3]==='actor'||r[3]==='actor2')&&!ADDRESS.test(actor))throw Error('Enter a wallet address for this live authorization read');
-  const result=await api(r[1],r[2],args);
-  $('readResult').textContent=JSON.stringify(result,null,2);
+ const r=project.reads[Number($('readMethod').value)];
+ const primary=numberField($('readId').value||'1'),secondary=numberField($('readOther').value||'1'),actor=$('readActor').value.trim();
+ const args=r[3]==='none'?[]:r[3]==='id'?[primary]:r[3]==='two'?[primary,secondary]:r[3]==='actor2'?[primary,actor]:[primary,secondary,actor];
+ if((r[3]==='actor'||r[3]==='actor2')&&!ADDRESS.test(actor))throw Error('Enter the worker wallet to check eligibility');
+ const result=await api(r[1],r[2],args);
+ $('readResult').textContent=JSON.stringify(result,null,2);
+ const tiles=r[2]==='get_case'?[
+  ['Case','#'+result.id],['Stage',result.stage],['AI verdict',result.verdict],['Worker A',result.a_sha256?'Signed':'Awaiting'],['Worker B',result.b_sha256?'Signed':'Awaiting']
+ ]:r[2]==='receipt_for'||r[2]==='get_receipt'?result?.id?[
+  ['Receipt','#'+result.id],['Case','#'+result.case_id],['Worker',result.role],['Status',result.status]
+ ]:[['Recovery receipt','No receipt recorded']]:r[2]==='recovery_permission'?[
+  ['Worker',result.role||'Not assigned'],['Rework eligible',result.allowed?'YES':'NO'],['Verdict',result.verdict]
+ ]:r[2]==='totals'?[['Cases recorded',result.cases]]:r[2]==='stats'?[['Recovery receipts',result.receipts]]:[];
+ $('readSummary').hidden=!tiles.length;
+ $('readSummary').innerHTML=tiles.map(([key,value])=>'<div class="readTile"><span>'+esc(key)+'</span><strong>'+esc(value)+'</strong></div>').join('');
 }
 $('readForm').onsubmit=async e=>{e.preventDefault();$('readResult').textContent='Reading latest-final on-chain state…';try{await handleRead()}catch(err){$('readResult').textContent='READ FAILED: '+err.message}};
 async function fillDefaultReads(){
