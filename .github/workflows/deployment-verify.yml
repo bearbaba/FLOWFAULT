@@ -1,0 +1,26 @@
+name: FLOWFAULT live Studionet deployment verification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'scripts/preflight.mjs'
+      - '.github/workflows/deployment-verify.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      FLOWFAULT_COURT_ADDRESS: '0x02A5476d786f55a215B33d77bdb071acB787182b'
+      FLOWFAULT_RECOVERY_ADDRESS: '0xBccDbe2906E9ef6Fd028018BDD892D820681c4d8'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Verify GenLayer deployed code, schema, final reads and Court to Gate link
+        run: npm run preflight
