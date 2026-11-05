@@ -1,42 +1,53 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {parseValue,classifyTx,verifyStored} from '../lib/verification.js';
-test('parse contract JSON but preserve diagnostics',()=>{
+const sha=(c)=>c.repeat(64);
+test('JSON parsing and finality never accept FINALIZED alone',()=>{
  assert.deepEqual(parseValue('{"ok":true}'),{ok:true});
- assert.equal(parseValue('SOURCE_MISMATCH'),'SOURCE_MISMATCH');
-});
-test('finality requires execution success, not only FINALIZED',()=>{
+ assert.equal(parseValue('BAD_OUTPUT'),'BAD_OUTPUT');
  assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS'}),'success');
- assert.equal(classifyTx({status:'FINALIZED',execution:'FINISHED_WITH_RETURN'}),'success');
- assert.equal(classifyTx({status:'FINALIZED',execution:'ERROR'}),'error');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'FINISHED_WITH_ERROR'}),'error');
  assert.equal(classifyTx({status:'FINALIZED'}),'pending');
  assert.equal(classifyTx({status:'ACCEPTED',execution:'SUCCESS'}),'pending');
 });
-test('VOTELINE requires same owner + exact mandate fields',()=>{
- const r={method:'create_mandate',actor:'0xABC',args:['0xdef','FOR','Grant only education',2]};
- const x={owner:'0xabc',delegate:'0xDEF',direction:'FOR',policy:'Grant only education',max_votes:2,active:true};
+test('new case requires correct owner, fields and a newer case ID',()=>{
+ const r={method:'open_case',actor:'0xAAA',prior:2,args:['0xbbb','0xccc','task','source']};
+ const x={id:3,owner:'0xaaa',worker_a:'0xBBB',worker_b:'0xccc',task_spec:'task',source_data:'source',source_sha256:sha('a'),stage:'OPEN',verdict:'PENDING'};
  assert.equal(verifyStored(r,x),true);
- assert.equal(verifyStored(r,{...x,max_votes:3}),false);
+ assert.equal(verifyStored({...r,prior:null},x),false);
+ assert.equal(verifyStored({...r,prior:3},x),false);
+ assert.equal(verifyStored(r,{...x,owner:'0xother'}),false);
+ assert.equal(verifyStored(r,{...x,source_data:'other'}),false);
+ assert.equal(verifyStored(r,{...x,stage:'DISPUTED'}),false);
 });
-test('ballot receipt must match signer, pair, choice',()=>{
- const r={method:'cast_vote',actor:'0xabc',args:[1,2,'FOR']};
- assert.equal(verifyStored(r,{id:1,mandate_id:1,proposal_id:2,actor:'0xABC',choice:'FOR'}),true);
- assert.equal(verifyStored(r,{id:1,mandate_id:1,proposal_id:2,actor:'0xbad',choice:'FOR'}),false);
+test('worker evidence must match sender, payload, hash and open stage',()=>{
+ const r={method:'submit_evidence',actor:'0xbbb',args:[3,'{"approvedTotal":20}',sha('b')]};
+ const x={id:3,stage:'OPEN',worker_a:'0xbbb',worker_b:'0xccc',a_output:r.args[1],a_sha256:r.args[2]};
+ assert.equal(verifyStored(r,x),true);
+ assert.equal(verifyStored({...r,actor:'0xccc'},x),false);
+ assert.equal(verifyStored(r,{...x,a_sha256:sha('c')}),false);
+ assert.equal(verifyStored(r,{...x,stage:'DECIDED'}),false);
 });
-test('AI outcome must be stored (no PENDING accepted)',()=>{
- assert.equal(verifyStored({method:'assess',args:[1,2]},{mandate_id:1,proposal_id:2,decision:'REVIEW'}),true);
- assert.equal(verifyStored({method:'assess',args:[1,2]},{mandate_id:1,proposal_id:2,decision:'PENDING'}),false);
- assert.equal(verifyStored({method:'adjudicate',args:[1]},{id:1,stage:'DECIDED',verdict:'UNVERIFIABLE'}),true);
+test('dispute must record both hashes, owner and pending verdict',()=>{
+ const r={method:'open_dispute',actor:'0xaaa',args:[3,'A signed dispute']};
+ const x={id:3,owner:'0xaaa',dispute:r.args[1],stage:'DISPUTED',verdict:'PENDING',a_sha256:sha('a'),b_sha256:sha('b')};
+ assert.equal(verifyStored(r,x),true);
+ assert.equal(verifyStored(r,{...x,b_sha256:''}),false);
+ assert.equal(verifyStored({...r,actor:'0xbbb'},x),false);
 });
-test('recovery receipt is not falsely marked fixed',()=>{
- const r={method:'submit_rework',args:[1,'corrected','abcd'],actor:'0xa'};
- const x={case_id:1,new_output:'corrected',new_sha256:'abcd',actor:'0xa',status:'REWORK_SUBMITTED_NOT_VERIFIED'};
+test('AI verdict must be an on-chain decided value',()=>{
+ for(const verdict of ['REWORK_A','REWORK_B','SHARED','UNVERIFIABLE'])
+  assert.equal(verifyStored({method:'adjudicate',args:[3]},{id:3,stage:'DECIDED',verdict}),true);
+ assert.equal(verifyStored({method:'adjudicate',args:[3]},{id:3,stage:'DECIDED',verdict:'PENDING'}),false);
+});
+test('receipt is a signed submission, not a verified correction',()=>{
+ const r={method:'submit_rework',actor:'0xccc',args:[3,'corrected',sha('e')]};
+ const x={id:2,case_id:3,actor:'0xccc',role:'B',original_sha256:sha('d'),new_sha256:sha('e'),new_output:'corrected',status:'REWORK_SUBMITTED_NOT_VERIFIED'};
  assert.equal(verifyStored(r,x),true);
  assert.equal(verifyStored(r,{...x,status:'FIXED'}),false);
+ assert.equal(verifyStored(r,{...x,original_sha256:sha('e')}),false);
+ assert.equal(verifyStored({...r,actor:'0xaaa'},x),false);
 });
-test('worker evidence must be exact same signed actor and digest',()=>{
- const r={method:'submit_evidence',args:[1,'{"ok":true}','a'.repeat(64)],actor:'0xb'};
- const x={id:1,worker_a:'0xa',worker_b:'0xb',b_output:r.args[1],b_sha256:r.args[2]};
- assert.equal(verifyStored(r,x),true);
- assert.equal(verifyStored(r,{...x,b_sha256:'b'.repeat(64)}),false);
+test('unrelated method cannot verify FLOWFAULT state',()=>{
+ assert.equal(verifyStored({method:'legacy_method'},{}),false);
 });

@@ -147,11 +147,43 @@ function argValues(f){
    return v;
  });
 }
+async function validateCaseWrite(f,values){
+  const signer=account.toLowerCase();
+  const norm=v=>String(v||'').toLowerCase();
+  if(f.key==='open_case'){
+    if(norm(values[0])===norm(values[1])||norm(values[0])===signer||norm(values[1])===signer)
+      throw Error('Case owner, Worker A and Worker B must be three distinct wallets.');
+    return;
+  }
+  const c=await api('court','get_case',[values[0]]);
+  if(f.key==='submit_evidence'){
+    if(c.stage!=='OPEN')throw Error('Evidence window closed.');
+    if(signer===norm(c.worker_a)){if(c.a_sha256)throw Error('Worker A evidence already frozen.')}
+    else if(signer===norm(c.worker_b)){
+      if(!c.a_sha256)throw Error('Worker A must sign evidence first.');
+      if(c.b_sha256)throw Error('Worker B evidence already frozen.');
+    }else throw Error('Use the assigned Worker A or B wallet.');
+  }else if(f.key==='open_dispute'){
+    if(signer!==norm(c.owner))throw Error('Use the case owner wallet.');
+    if(c.stage!=='OPEN'||!c.a_sha256||!c.b_sha256)
+      throw Error('Both signed worker artifacts are required before a dispute.');
+  }else if(f.key==='adjudicate'){
+    if(c.stage!=='DISPUTED'||c.verdict!=='PENDING')
+      throw Error('No pending dispute to adjudicate.');
+  }else if(f.key==='submit_rework'){
+    const perm=await api('court','recovery_permission',[values[0],signer]);
+    if(perm.allowed!==true||norm(perm.actor)!==signer)
+      throw Error('Verdict does not authorize this wallet for rework.');
+    if(perm.original_sha256===values[2])throw Error('Replacement hash must differ from the original.');
+  }
+}
+
 async function startSign(f) {
   if(busy)return;
   const prior=loadPending();
   if(prior){notice('Pending transaction still stored','Recheck the same transaction before signing another.',1,prior.hash);$('recheck').hidden=false;return}
   if(!config?.configured){notice('Studio deployment required','Configure both deployed contracts before any signing. No transaction sent.');return}
+  setBusy(true);
   let values;
   try{
     values=argValues(f);
@@ -164,11 +196,14 @@ async function startSign(f) {
     const contract=config[f.scope];
     if(!ADDRESS.test(contract||''))throw Error('Configured contract address unavailable');
     const sender=await ensureWallet();
+    await validateCaseWrite(f,values);
     const record={form:f.key,scope:f.scope,method:f.method,args:values,actor:account.toLowerCase(),hash:'',prior:null};
-    if(f.key==='update_mandate'){
-      record.prior=(await api('registry','get_mandate',[values[0]])).version;
+    if(f.key==='open_case'){
+      const before=await api('court','totals');
+      if(!Number.isSafeInteger(before?.cases)||before.cases<0)
+        throw Error('Cannot verify case count before signing. No tx sent.');
+      record.prior=before.cases;
     }
-    setBusy(true);
     notice('Confirm in wallet','Review '+f.method+' and the destination contract. No tx has been broadcast yet.',1);
     const hash=await sender.writeContract({address:contract,functionName:f.method,args:values,value:0n});
     if(!/^0x[0-9a-fA-F]{64}$/.test(hash||''))throw Error('No valid transaction hash returned');
@@ -220,38 +255,29 @@ async function follow(record){
   }finally{checking=false;setBusy(false)}
 }
 async function verifyRecord(record){
-  const a=record.args,actor=record.actor,method=record.method;
-  const read=(scope,name,...args)=>api(scope,name,args);
-  if(method==='create_mandate'||method==='create_proposal'||method==='open_case'){
-    const scope=method==='open_case'?'court':'registry';
-    const totals=await read(scope,'totals');
-    const key=method==='create_mandate'?'mandates':method==='create_proposal'?'proposals':'cases';
-    const getter=method==='create_mandate'?'get_mandate':method==='create_proposal'?'get_proposal':'get_case';
-    for(let id=totals[key];id>Math.max(0,totals[key]-20);id--){
-      const x=await read(scope,getter,id);
-      if(verifyStored(record,x))return {ok:true,message:method+' recorded as #'+id+' with finalized state.'};
+  const a=record.args;
+  const read=(scope,method,...args)=>api(scope,method,args);
+  if(record.method==='open_case'){
+    if(!Number.isSafeInteger(record.prior)||record.prior<0)
+      throw Error('Pre-sign case count missing; cannot correlate a new case.');
+    const totals=await read('court','totals');
+    if(!Number.isSafeInteger(totals?.cases)||totals.cases<=record.prior)return {ok:false};
+    // A bounded scan of only NEW case IDs; old matching cases cannot verify this write.
+    for(let id=totals.cases;id>record.prior&&id>totals.cases-50;id--){
+      const x=await read('court','get_case',id);
+      if(verifyStored(record,x))
+        return {ok:true,message:'Case #'+id+' matches newly stored finalized state.'};
     }
     return {ok:false};
   }
-  if(method==='assess'){
-    const x=await read('registry','get_assessment',a[0],a[1]);
-    if(verifyStored(record,x))return{ok:true,message:'Persisted comparative AI outcome: '+x.decision};
-  }
-  if(method==='cast_vote'){
-    const x=await read('gate','ballot_for',a[0],a[1]);
-    if(verifyStored(record,x))return{ok:true,message:'Delegated ballot #'+x.id+' verified in the Ballot contract.'};
-  }
-  if(method==='revoke_mandate'||method==='update_mandate'){
-    const x=await read('registry','get_mandate',a[0]);
-    if(verifyStored(record,x))return{ok:true,message:'Mandate change verified at version '+x.version};
-  }
-  if(method==='submit_evidence'||method==='open_dispute'||method==='adjudicate'){
+  if(['submit_evidence','open_dispute','adjudicate'].includes(record.method)){
     const x=await read('court','get_case',a[0]);
-    if(verifyStored(record,x))return{ok:true,message:method==='adjudicate'?'Persisted AI verdict: '+x.verdict:'Case #'+a[0]+' updated and verified.'};
+    if(verifyStored(record,x))return {ok:true,message:record.method==='adjudicate'?
+      'Persisted AI verdict: '+x.verdict:'Case #'+a[0]+' matches finalized state.'};
   }
-  if(method==='submit_rework'){
+  if(record.method==='submit_rework'){
     const x=await read('gate','receipt_for',a[0]);
-    if(verifyStored(record,x))return{ok:true,message:'Recovery receipt #'+x.id+' stored: '+x.status};
+    if(verifyStored(record,x))return {ok:true,message:'Recovery receipt #'+x.id+': '+x.status};
   }
   return {ok:false};
 }
@@ -279,11 +305,13 @@ async function refreshConfig(){
     if(!r.ok)throw Error('Config unavailable');
     $('network').textContent=config.configured?'Studionet 61999 · addresses configured':'Studio deployment pending';
     $('network').classList.toggle('pending',!config.configured);
+    $('deploymentState').textContent=config.configured?'CONFIG':'SOURCE';
     if(!config.configured)notice('Waiting for Studio deployment','Both contracts need deployment, addresses and readback preflight before wallet signing.');
   }catch(e){
     config={configured:false};
     $('network').textContent='RPC / config unavailable';
     $('network').classList.add('pending');
+    $('deploymentState').textContent='SOURCE';
     notice('Unavailable',e.message);
   }
   setBusy(false);
