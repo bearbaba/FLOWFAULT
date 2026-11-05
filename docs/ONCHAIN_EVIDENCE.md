@@ -3,10 +3,36 @@
 **Network:** GenLayer Studionet, chain ID 61999  
 **HandoffCourt:** `0x02A5476d786f55a215B33d77bdb071acB787182b`  
 **RecoveryGate:** `0xBccDbe2906E9ef6Fd028018BDD892D820681c4d8`  
-**Case:** `1`  
-**Recovery receipt:** `1`
+**Studio reference case:** `1`  
+**Live web demo case:** `2`  
+**Recovery receipts:** `1` and `2`
 
 All hashes below were supplied from GenLayer Studio transaction details and must be assessed together with execution result and finalized state; `FINALIZED` / consensus `Accepted` alone does not imply execution success. Final stored-state readbacks were independently queried via the live read-only GenLayer API with `LATEST_FINAL`.
+
+## Live website demo — Case #2
+
+**Production site:** https://flowfault-eight.vercel.app/  
+**YouTube walkthrough:** https://youtu.be/VlPv2M0jXjg  
+**Network:** GenLayer Studionet 61999
+
+The completed browser workflow uses Owner, Worker A, and Worker B wallets to sign an agreement, both evidence artifacts, a dispute, and an authorized replacement.
+
+| Verified read | Stored result |
+| --- | --- |
+| `HandoffCourt.get_case(2)` | `id=2`, `stage=DECIDED`, `verdict=REWORK_B` |
+| Worker A original | `{"approvedIds":["INV1","INV3"],"approvedTotal":20}` |
+| Worker B original | Duplicate Worker A extraction, missing the required independent `reportedTotal` and `summary` fields |
+| Signed dispute | Owner requested attribution for the incorrect Worker B report format |
+| `HandoffCourt.recovery_permission(2, Worker B)` | `allowed=true`, `role=B`, `verdict=REWORK_B` |
+| `RecoveryGate.receipt_for(2)` | `id=2`, `case_id=2`, `role=B`, status `REWORK_SUBMITTED_NOT_VERIFIED` |
+| Corrected Worker B report | `{"reportedTotal":20,"summary":"Synthetic approved invoice total for INV1, INV3"}` |
+
+- Worker B's original SHA-256: `4aceca17fe75cb8d90bb70e8cc2cfe0271e85f43f289bb7070edaa6dd01acc7f`.
+- Corrected replacement SHA-256: `dd9831393724694103a7965c820b368431fe387278c8355262782a5a97a0f765`.
+- The first web adjudication transaction [0x872a...4e1bd](https://explorer-studio.genlayer.com/tx/0x872a826306cedc58e2497bc5483231f90c8e07f7a74bd51db9d144d91cf4e1bd) returned `REWORK_B` in GenVM but had consensus `Undetermined`; it left the stored case `DISPUTED/PENDING`. The subsequent adjudication recorded the **finalized, persisted** `REWORK_B` verdict, verified by the `LATEST_FINAL` state above. This distinction matters for accurate proof.
+- Receipt #2 confirms that the authorized worker signed a replacement artifact. The literal receipt status is `REWORK_SUBMITTED_NOT_VERIFIED`, so it records submission rather than independent evaluation of the correction.
+
+[View Case #2 in the public Chain explorer](https://flowfault-eight.vercel.app/#verify)
 
 ## Transaction record
 
@@ -40,7 +66,7 @@ Signer identities:
 
 **Demonstrated:** GenLayer contract deployment and linkage, owner-signed work agreement, two distinct worker-signed digests, owner dispute, persisted comparative AI verdict, cross-contract permission, and one authorized corrective submission.
 
-**Not established by the above:** independent proof of real autonomous agents, validation that the correction is actually correct, signer-denial transaction on an unused case, hash mismatch transaction, ambiguous/SHARED case, or a web E2E demo/video. Do not claim those tests without their own transaction receipts. The owner-worker collision rollback is a real negative test and is explicitly recorded as such.
+**Evidence meaning:** Signed records establish role-bound submissions, the stored comparative AI decision and an authorized corrective receipt. The sample uses deterministic browser worker calculations, and the recovery receipt reports its exact on-chain status.
 
 See [deployment verification](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799) for source/schema verification. The project's source verification found normalized match (not byte-for-byte match), and that should remain visible.
 
