@@ -1,13 +1,32 @@
-# FLOWFAULT — Studio deployment and signed-workflow runbook
+# FLOWFAULT — Studio and reviewer guide
 
-Target GenLayer **Studionet 61999** via https://studio.genlayer.com, never Studio Dev 61997.
+FLOWFAULT runs on **GenLayer Studionet (chain ID 61999)**. Its web app and two deployed Intelligent Contracts are publicly accessible.
 
-1. HandoffCourt and RecoveryGate are deployed to Studionet 61999, with source, schema and live Gate-to-Court linkage verified by [CI preflight](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799).
-2. Public website: https://flowfault-khaiptk1998-8088s-projects.vercel.app. Both server-only environment variables are configured.
-3. Prepare three distinct wallets: Case Owner, Worker A, Worker B, each funded with test GEN.
-4. **Completed in Studio:** owner created Case #1; A signed approvedTotal `20`; B signed intentionally inaccurate total `27`; owner opened dispute; comparative AI returned `REWORK_B` with FINALIZED/SUCCESS; authorized B submitted the corrected total and received receipt #1. [Exact signed txs and verified readbacks](ONCHAIN_EVIDENCE.md).
-5. **Next signed Studio negative test:** B resubmits `submit_rework` for Case #1 with the same parameters. Expected FINALIZED with GenVM ERROR / rollback `case already has rework receipt`; check receipt #1 remains intact and `stats().receipts=1`. Record actual result rather than asserting it occurred.
-6. Test separate wrong-signer, hash-mismatch, missing-evidence and SHARED / UNVERIFIABLE cases if pursuing stronger negative coverage; do not call an existing receipt-case a clean authorization failure because duplicate gating runs first.
-7. **Website only after Studio tests:** record one concise web workflow demo; preserve Studio signed ledger, version, hashes and exact outcome when preparing a Projects submission.
+**Start with the product:** https://flowfault-eight.vercel.app  
+**Watch the live browser walkthrough:** https://youtu.be/VlPv2M0jXjg
 
-Do not claim validator consensus from successful Python syntax or unit tests. Studio readiness is a separate acceptance gate.
+## Review Case #2 without a wallet
+
+1. Open the web app and select **Chain explorer**.
+2. Choose **Case evidence**, enter Case ID **2**, and read the latest-final result: `DECIDED / REWORK_B`.
+3. Choose **Recovery receipt by case**, enter **2**, and inspect Receipt #2. The authorized Worker B submitted a corrected `reportedTotal: 20` report.
+4. In **Workflow**, inspect the guided six-step sequence, including the assigned signer and recorded decision.
+
+## Reproduce the signed workflow
+
+1. Connect the **Owner** wallet on Studionet and create a task with two distinct Worker addresses.
+2. Each worker connects their assigned wallet and signs its own SHA-256-linked artifact.
+3. The Owner opens a dispute using the signed outputs and frozen agreement.
+4. Invoke **AI decision**. A finalized, persisted `REWORK_A` or `REWORK_B` verdict authorizes the matching worker to proceed.
+5. The authorized worker submits a replacement artifact to RecoveryGate and receives a one-time on-chain receipt.
+
+The app follows each transaction through wallet confirmation, GenLayer execution/finality and a matching latest-final state readback.
+
+## Smart contracts and evidence
+
+- [HandoffCourt on Studio](https://studio.genlayer.com/?import-contract=0x02A5476d786f55a215B33d77bdb071acB787182b)
+- [RecoveryGate on Studio](https://studio.genlayer.com/?import-contract=0xBccDbe2906E9ef6Fd028018BDD892D820681c4d8)
+- [Signed Studio Case #1 and browser Case #2 evidence](ONCHAIN_EVIDENCE.md)
+- [Live deployment verification](DEPLOYMENT_REGISTRY.md)
+
+**Proof semantics:** Recovery receipts identify who submitted a new artifact and its SHA-256 digest; their stored status is `REWORK_SUBMITTED_NOT_VERIFIED`. The system uses test GEN and synthetic tasks.
