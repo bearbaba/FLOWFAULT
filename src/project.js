@@ -11,7 +11,7 @@ export const project = {
    task_spec:"Process synthetic invoice entries. Worker A must extract the IDs of approved entries and produce the exact integer approvedTotal as JSON. Worker B must independently issue a summary with reportedTotal matching A approvedTotal exactly, without inventing amounts or changing attribution. A failure in only B output requires REWORK_B.",
    source_data:'[{"id":"INV1","amount":12,"approved":true},{"id":"INV2","amount":6,"approved":false},{"id":"INV3","amount":8,"approved":true}]'
   },
-  dispute:{reason:"The submitted Worker B report shows an approvedTotal different from the source and the frozen Worker A artifact. Identify which signed worker artifact deviated from the task agreement."}
+  dispute:{reason:"Evaluate the frozen work agreement, source and both signed worker outputs. Worker B must independently provide a reportedTotal and summary consistent with Worker A. Identify any provable violation and determine the responsible worker or whether evidence is insufficient."}
  },
  forms:[
   {key:"open_case",title:"1. Lock a work agreement",subtitle:"Case owner signs immutable task, source and two distinct worker wallet addresses.",scope:"court",method:"open_case",
