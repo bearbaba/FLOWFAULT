@@ -54,3 +54,14 @@ See [deployment verification](https://github.com/bearbaba/FLOWFAULT/actions/runs
 - Follow-up read `receipt_for(1)` at `LATEST_FINAL` was successful and still returned the original Worker B Receipt #1, including the same original and replacement hashes and status `REWORK_SUBMITTED_NOT_VERIFIED`.
 - Case `get_case(1)` still returned `DECIDED` / `REWORK_B`.
 - This proves duplicate submission rejection for this Case, not independent wrong-signer denial on a new Case.
+
+## Additional Studio negative test — unauthorized dispute
+
+- Transaction: https://explorer-studio.genlayer.com/tx/0xc07724ba2ba342abf3c34d7942acac3eef6c09410fbf5e7aead1014bc68fd518
+- Contract: `HandoffCourt`, method `open_dispute`, Case ID `1`.
+- The signed test was initiated by switching to Worker A according to the Studio test instructions; the supplied transaction view did **not** display a `From` field, so the exact sender remains to be corroborated from the explorer.
+- Transaction reported `FINALIZED` with GenVM `ERROR / Rollback`; consensus `Accepted` indicates acceptance of the rollback, **not** successful execution.
+- Exact reported rollback reason: `owner only`.
+- Validator record supplied: three `Agree` results for `[rollback] owner only`; two other executions cancelled after quorum.
+- Independent `LATEST_FINAL` read after rollback: `HandoffCourt.get_case(1)` remained `DECIDED / REWORK_B` with its original dispute string, and `RecoveryGate.receipt_for(1)` retained the original Worker B receipt #1 and `REWORK_SUBMITTED_NOT_VERIFIED`.
+- This demonstrates the owner-only protection rejecting a non-owner `open_dispute` call; it is not evidence of a successful dispute opening or an unauthorized recovery denial.
