@@ -13,16 +13,135 @@ const ADDRESS = /^0x[0-9a-fA-F]{40}$/;
 const CHAIN = 61999;
 let config = null, account = '', busy = false, checking = false;
 
+const steps=[
+ {key:'open_case',name:'Create case',role:'Owner',tip:'Lock the agreement and assign two different worker wallets.'},
+ {key:'submit_evidence',name:'Worker A',role:'Worker A',tip:'Switch to Worker A. Generate the correct extraction and sign it.'},
+ {key:'submit_evidence',name:'Worker B',role:'Worker B',tip:'Switch to Worker B. For the demo, generate the faulty report (27).'},
+ {key:'open_dispute',name:'Open dispute',role:'Owner',tip:'Switch back to Owner. Compare the two signed artifacts and open a dispute.'},
+ {key:'adjudicate',name:'AI decision',role:'Any wallet',tip:'Request GenLayer comparative AI consensus and verify the actual verdict.'},
+ {key:'submit_rework',name:'Submit rework',role:'Responsible worker',tip:'Only the worker named in the final REWORK verdict may submit a replacement.'}
+];
+let activeStep=0,activeCaseId=null,liveCase=null,liveReceipt=null;
+const shortAddr=v=>v&&ADDRESS.test(v)?v.slice(0,6)+'…'+v.slice(-4):'—';
+function doneSteps(){
+ if(!liveCase)return [false,false,false,false,false,false];
+ const complete=liveCase.stage==='DECIDED';
+ return [true,!!liveCase.a_sha256,!!liveCase.b_sha256,!!liveCase.dispute,complete,!!liveReceipt];
+}
+function suggestedStep(){
+ const done=doneSteps();
+ const index=done.findIndex(v=>!v);
+ return index<0?5:index;
+}
+function paintSteps(){
+ const done=doneSteps();
+ $('stepNav').innerHTML=steps.map((s,i)=>
+  '<button type="button" class="step '+(activeStep===i?'selected ':'')+(done[i]?'finished':'')+'" data-go-step="'+i+'" aria-current="'+(activeStep===i?'step':'false')+'">'+
+  '<span class="stepIndex">'+(done[i]?'✓':String(i+1).padStart(2,'0'))+'</span>'+
+  '<span>'+esc(s.name)+'</span></button>'
+ ).join('');
+ for(const b of $('stepNav').querySelectorAll('[data-go-step]'))b.onclick=()=>goStep(Number(b.dataset.goStep));
+ const current=steps[activeStep];
+ for(const panel of document.querySelectorAll('[data-action]'))panel.hidden=panel.dataset.action!==current.key;
+ const roleAddress=current.role==='Owner'?liveCase?.owner:current.role==='Worker A'?liveCase?.worker_a:current.role==='Worker B'?liveCase?.worker_b:
+  current.role==='Responsible worker'?(liveCase?.verdict==='REWORK_B'?liveCase?.worker_b:liveCase?.verdict==='REWORK_A'?liveCase?.worker_a:null):null;
+ $('stepIntro').innerHTML='<div><div class="stepKicker">STEP '+(activeStep+1)+' OF 6 · '+esc(current.role)+'</div>'+
+  '<h2>'+esc(current.name)+'</h2><p>'+esc(current.tip)+'</p>'+
+  (roleAddress?'<p class="roleWallet">Required wallet <strong>'+esc(shortAddr(roleAddress))+'</strong></p>':'')+
+  (done[activeStep]?'<p class="stepDone">✓ This step is already confirmed on-chain for the selected case.</p>':'')+
+  (activeStep===5&&liveCase&& !['REWORK_B','REWORK_A'].includes(liveCase.verdict)?'<p class="stepWarning">This verdict does not authorize a replacement. Review the case instead.</p>':'')+
+  '</div>';
+ for(const btn of document.querySelectorAll('[data-worker]')){
+  btn.hidden=(activeStep===1?btn.dataset.worker!=='A':activeStep===2?btn.dataset.worker!=='B_FAULT':true);
+ }
+ for(const b of document.querySelectorAll('[data-sign]')){
+  b.disabled=busy||!config?.configured||!!(done[activeStep]&&activeStep!==0)||
+    !!(activeStep===5&&liveCase&&!['REWORK_A','REWORK_B'].includes(liveCase.verdict));
+ }
+ for(const key of ['submit_evidence','open_dispute','adjudicate','submit_rework']){
+  const field=$('f_'+key+'_case_id');
+  if(field&&activeCaseId&&(!field.value||Number(field.value)!==activeCaseId))field.value=String(activeCaseId);
+ }
+ const caseTitle=liveCase?'Case #'+liveCase.id:'No case yet';
+ $('caseTitle').textContent=caseTitle;
+ $('caseStatus').textContent=liveCase?
+  (liveReceipt?'Rework submitted · Receipt #'+liveReceipt.id:liveCase.stage+' · '+liveCase.verdict):
+  'Create a case or load the latest one.';
+ $('caseStatus').className='caseStatus'+(liveReceipt?' ready':'');
+ $('caseRoles').textContent=liveCase?
+  'Owner '+shortAddr(liveCase.owner)+' · A '+shortAddr(liveCase.worker_a)+' · B '+shortAddr(liveCase.worker_b):'Three distinct wallets are required.';
+ $('homeCase').textContent=liveCase?
+  ('#'+liveCase.id+' · '+(liveReceipt?'Receipt #'+liveReceipt.id:liveCase.verdict==='PENDING'?liveCase.stage:liveCase.verdict)):'No case';
+ if(liveCase&&liveReceipt){$('caseComplete').hidden=false;$('caseComplete').textContent=
+  'Case #'+liveCase.id+' · '+liveCase.verdict+' · Receipt #'+liveReceipt.id+' · REWORK SUBMITTED (not independently verified)';}
+ else $('caseComplete').hidden=true;
+}
+function goStep(i){
+ activeStep=Math.max(0,Math.min(5,i));
+ paintSteps();
+ showPage('workflow');
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+async function refreshProgress(recommend=false){
+ if(!config?.configured)return;
+ try{
+  const totals=await api('court','totals');
+  const newest=Number(totals?.cases||0);
+  const id=activeCaseId||newest;
+  if(!id){liveCase=null;liveReceipt=null;activeCaseId=null;}
+  else{
+    const result=await api('court','get_case',[id]);
+    if(result?.id!==id)throw Error('Case readback did not match selected ID.');
+    liveCase=result;activeCaseId=id;
+    const raw=await api('gate','receipt_for',[id]);
+    liveReceipt=raw&&typeof raw==='object'&&raw.case_id===id?raw:null;
+  }
+  if(recommend)activeStep=suggestedStep();
+  paintSteps();
+  $('caseRefreshLabel').textContent='Latest-final state';
+ }catch(e){
+  $('caseRefreshLabel').textContent='Chain read unavailable · Retry';
+ }
+}
+function proposeNext(record,proof){
+ const step=Number.isSafeInteger(record.step)?record.step:
+  record.method==='open_case'?0:record.method==='submit_evidence'?(record.actor===liveCase?.worker_a?1:2):
+  record.method==='open_dispute'?3:record.method==='adjudicate'?4:5;
+ let next=step+1;
+ let message=next<steps.length?'Verified. Continue to '+steps[next].name+'.':'Recovery receipt verified. You can inspect the on-chain record.';
+ if(step===4&&!['REWORK_A','REWORK_B'].includes(liveCase?.verdict)){
+  next=-1;message='The AI verdict does not authorize rework. Review the finalized case.';
+ }
+ if(step===5)next=-1;
+ $('txNextWrap').hidden=false;
+ $('txNextText').textContent=message;
+ $('txNext').textContent=next===-1?'View verified record →':'Continue · '+steps[next].name+' →';
+ $('txNext').onclick=()=>{
+  if(next===-1){
+   $('readMethod').value=step===5?'3':'0';
+   $('readId').value=String(activeCaseId||record.args[0]||1);
+   showPage('verify');handleRead().catch(e=>{$('readResult').textContent='Read unavailable: '+e.message});
+  }else goStep(next);
+ };
+}
+
+
 function notice(title, detail, phase=0, hash='') {
-  $('txTitle').textContent = title;
-  $('txMessage').textContent = detail;
-  for(let n=1;n<=3;n++) $('phase'+n).className = n < phase ? 'done' : n===phase ? 'current' : '';
-  $('txExplorer').hidden = !hash;
-  if(hash) $('txExplorer').href = explorer + encodeURIComponent(hash);
+  $('txTitle').textContent=title;
+  $('txMessage').textContent=detail;
+  $('txBadge').textContent=phase===3?'VERIFIED':phase===2?'TRACKING':phase===1?'SIGNING':/failed|error|unavailable/i.test(title)?'ATTENTION':'READY';
+  $('txBadge').className='txBadge '+(phase===3?'isGood':phase>=1?'isActive':'');
+  $('activity').classList.toggle('engaged',phase>=1||!!hash);
+  for(let n=1;n<=3;n++)$('phase'+n).className=n<phase?'done':n===phase?'current':'';
+  $('txExplorer').hidden=!hash;
+  $('txHashText').textContent=hash?shortAddr(hash)+' · saved transaction':'No transaction sent yet';
+  if(hash)$('txExplorer').href=explorer+encodeURIComponent(hash);
+  if(phase!==3)$('txNextWrap').hidden=true;
 }
 function setBusy(v) {
   busy=v;
   document.querySelectorAll('button[data-sign]').forEach(b=>b.disabled=v||!config?.configured);
+  if($('stepNav'))paintSteps();
 }
 function showPage(name) {
   for(const p of ['overview','workflow','verify']) $(p).hidden = p!==name;
@@ -55,18 +174,18 @@ function makeField(key, title, kind, method) {
   return '<label class="'+(kind==='textarea'?'wide':'')+'">'+esc(title)+input+'</label>';
 }
 function renderForms(){
-  $('forms').innerHTML=project.forms.map((f,i)=>
-    '<section class="action"><span class="pill">'+esc(f.scope.toUpperCase())+' · '+esc(f.method)+'</span>'+
-    '<h2 style="margin-top:13px">'+esc(f.title)+'</h2><p>'+esc(f.subtitle)+'</p>'+
+  $('forms').innerHTML=project.forms.map(f=>
+    '<section class="action" data-action="'+esc(f.key)+'" hidden>'+
+    '<div class="actionTop"><span class="pill">'+esc(f.scope.toUpperCase())+' · '+esc(f.method)+'</span><span class="safeHint">Studionet · Test GEN only</span></div>'+
     '<form id="form_'+esc(f.key)+'"><div class="fieldGrid">'+f.fields.map(x=>makeField(x[0],x[1],x[2],f.key)).join('')+'</div>'+
-    '<div class="actions"><button class="primary" type="submit" data-sign>Review & sign transaction ↗</button>'+
-    (f.preset?'<button class="outline" type="button" data-preset="'+esc(f.preset)+'" data-target="'+esc(f.key)+'">Load example</button>':'')+
-    (project.id==='flowfault'&&f.key==='submit_evidence'?
-      '<button class="outline" type="button" data-worker="A">Generate Worker A</button>'+
-      '<button class="outline" type="button" data-worker="B">Generate Worker B</button>'+
-      '<button class="outline" type="button" data-worker="B_FAULT">Generate faulty Worker B</button>':'')+
-    (project.id==='flowfault'&&f.key==='submit_rework'?'<button class="outline" type="button" data-rework="correct">Generate corrected artifact</button>':'')+
-    '</div></form><p class="hint">Signing consumes test GEN. An example only fills a draft; it never signs or submits.</p></section>'
+    '<div class="actions">'+
+    (f.preset?'<button class="outline" type="button" data-preset="'+esc(f.preset)+'" data-target="'+esc(f.key)+'">Use sample data</button>':'')+
+    (f.key==='submit_evidence'?
+      '<button class="outline" type="button" data-worker="A">Generate Worker A output</button>'+
+      '<button class="outline" type="button" data-worker="B_FAULT">Generate faulty Worker B (27)</button>':'')+
+    (f.key==='submit_rework'?'<button class="outline" type="button" data-rework="correct">Generate corrected output</button>':'')+
+    '<button class="primary signAction" type="submit" data-sign>Review & sign →</button>'+
+    '</div></form><p class="hint">You approve every transaction in your own wallet. No automatic retries or duplicate signing.</p></section>'
   ).join('');
   for(const f of project.forms){
     $('form_'+f.key).addEventListener('submit',ev=>{ev.preventDefault();startSign(f)});
@@ -181,7 +300,7 @@ async function validateCaseWrite(f,values){
 async function startSign(f) {
   if(busy)return;
   const prior=loadPending();
-  if(prior){notice('Pending transaction still stored','Recheck the same transaction before signing another.',1,prior.hash);$('recheck').hidden=false;return}
+  if(prior){notice('Pending transaction still stored','Recheck the same transaction before signing another.',2,prior.hash);$('recheck').hidden=false;return}
   if(!config?.configured){notice('Studio deployment required','Configure both deployed contracts before any signing. No transaction sent.');return}
   setBusy(true);
   let values;
@@ -197,7 +316,7 @@ async function startSign(f) {
     if(!ADDRESS.test(contract||''))throw Error('Configured contract address unavailable');
     const sender=await ensureWallet();
     await validateCaseWrite(f,values);
-    const record={form:f.key,scope:f.scope,method:f.method,args:values,actor:account.toLowerCase(),hash:'',prior:null};
+    const record={form:f.key,scope:f.scope,method:f.method,args:values,actor:account.toLowerCase(),step:activeStep,hash:'',prior:null};
     if(f.key==='open_case'){
       const before=await api('court','totals');
       if(!Number.isSafeInteger(before?.cases)||before.cases<0)
@@ -212,7 +331,7 @@ async function startSign(f) {
     $('recheck').hidden=false;
     setBusy(false);
     await follow(record);
-  }catch(e){setBusy(false);notice('No verified write',e?.message||String(e))}
+  }catch(e){setBusy(false);notice('Not submitted',e?.message||String(e))}
 }
 function loadPending(){try{return JSON.parse(sessionStorage.getItem(pendingKey)||'null')}catch{return null}}
 async function follow(record){
@@ -239,7 +358,10 @@ async function follow(record){
             const proof=await verifyRecord(record);
             if(proof.ok){
               sessionStorage.removeItem(pendingKey);
+              if(Number.isSafeInteger(proof.caseId))activeCaseId=proof.caseId;
+              await refreshProgress(false);
               notice('FINALIZED / VERIFIED',proof.message,3,record.hash);
+              proposeNext(record,proof);
               await fillDefaultReads();
               return;
             }
@@ -266,7 +388,7 @@ async function verifyRecord(record){
     for(let id=totals.cases;id>record.prior&&id>totals.cases-50;id--){
       const x=await read('court','get_case',id);
       if(verifyStored(record,x))
-        return {ok:true,message:'Case #'+id+' matches newly stored finalized state.'};
+        return {ok:true,caseId:id,message:'Case #'+id+' verified on-chain.'};
     }
     return {ok:false};
   }
@@ -315,6 +437,7 @@ async function refreshConfig(){
     notice('Unavailable',e.message);
   }
   setBusy(false);
+  if(config?.configured)await refreshProgress(true);
 }
 async function generateWorkerDraft(role) {
   try{
@@ -346,5 +469,8 @@ async function generateReworkDraft(){
  }catch(e){notice('Cannot generate correction',e.message)}
 }
 $('recheck').onclick=async()=>{const record=loadPending();if(record)await follow(record);else notice('No pending hash','Previous status remains visible; no automatic retry was sent.')};
-renderMeta();renderForms();renderReads();showPage(['overview','workflow','verify'].includes(location.hash.slice(1))?location.hash.slice(1):'overview');
+$('refreshCase').onclick=()=>refreshProgress(true);
+$('startCase').onclick=()=>goStep(0);
+renderMeta();renderForms();renderReads();paintSteps();
+showPage(['overview','workflow','verify'].includes(location.hash.slice(1))?location.hash.slice(1):'overview');
 refreshConfig().then(()=>{const r=loadPending();if(r?.hash){$('recheck').hidden=false;follow(r)}});

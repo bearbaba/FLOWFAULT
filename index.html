@@ -1,7 +1,79 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a141b"><meta name="description" content="FLOWFAULT signed worker handoffs, AI dispute attribution and one-time rework authorization."><title>FLOWFAULT — Worker accountability</title></head><body>
-<div class="shell"><aside class="sidebar"><a class="brand" href="#overview"><span class="logo">✦</span><span id="brandName">GenLayer Project</span></a><div class="sideLabel">WORKSPACE</div><nav><button data-page="overview" class="active">Overview <span>01</span></button><button data-page="workflow">Signed workflow <span>02</span></button><button data-page="verify">Read-only verification <span>03</span></button></nav><div class="sidebarBottom">Experimental GenLayer Studionet<br>Chain 61999 · No Mainnet claims<br><a id="sourceLink" href="#" target="_blank" rel="noopener">Open-source repository ↗</a></div></aside>
-<main><header><div id="breadcrumb">Overview</div><div class="headRight"><span class="network" id="network">Studionet · checking</span><button id="walletBtn" class="quiet">Connect wallet</button></div></header><div class="content"><section id="overview" class="page"><div class="eyebrow" id="category">GENLAYER INTELLIGENT CONTRACTS</div><h1 id="heroTitle">Consensus with consequences.</h1><p class="lede" id="heroSub"></p><div class="heroButtons"><button data-page="workflow" class="primary">Open signed workflow →</button><button data-page="verify" class="outline">Inspect live state ↗</button></div><div class="stats"><div><small>Network</small><strong>61999</strong><span>GenLayer Studionet</span></div><div><small>Contract sources</small><strong>02</strong><span>Source + schema + Court/Gate link verified</span></div><div><small>Deployment status</small><strong id="deploymentState">LINKED</strong><span>Signed workflow receipts will appear after transactions</span></div></div><div class="panel"><h2>What the contracts actually enforce</h2><div id="featureText"></div></div><div class="panel risk"><h2>Review boundaries</h2><p id="boundaries"></p></div></section>
-<section id="workflow" class="page" hidden><div class="eyebrow">SIGNED ACTIONS</div><h1>Review → Sign → Verify.</h1><p class="lede">Connect the correct wallet, inspect arguments, confirm in your wallet, then wait for FINALIZED execution and matching on-chain readback. No automatic retry.</p><div id="forms"></div></section>
-<section id="verify" class="page" hidden><div class="eyebrow">PUBLIC EXPLORER</div><h1>Read the actual chain.</h1><p class="lede">View finalized contract state without connecting a wallet. Any missing contract or RPC response is reported as unavailable, never as success.</p><div class="panel"><h2>Inspect contract state</h2><form id="readForm"><div class="fieldGrid"><label>Method<select id="readMethod"></select></label><label>Primary ID<input id="readId" type="number" min="1" value="1"></label><label>Other ID<input id="readOther" type="number" min="1" value="1"></label><label>Actor (optional)<input id="readActor" placeholder="0x..."></label></div><button class="outline" type="submit">Read latest-final state →</button></form><pre id="readResult" class="output">Choose a read method.</pre></div><div class="panel"><h2>Repository & reproducibility</h2><p>Review exact sources under <code>contracts/</code>, method map under <code>docs/</code>, tests and Studio deployment instructions. Both Studionet contracts are deployed and linked. The signed workflow is ready for real wallet testing; no AI verdict or recovery receipt is claimed before final readback.</p><a id="githubLink" target="_blank" rel="noopener">Open GitHub ↗</a></div></section></div></main>
-<aside class="activity"><div class="eyebrow">TRANSACTION ACTIVITY</div><div class="ring">↗</div><h2 id="txTitle">Ready when you are.</h2><p id="txMessage">No wallet action has been submitted.</p><div class="pipeline"><div id="phase1">01 Wallet signature</div><div id="phase2">02 GenLayer finality</div><div id="phase3">03 Stored state readback</div></div><a id="txExplorer" target="_blank" rel="noopener" hidden>Open transaction in Explorer ↗</a><button id="recheck" class="outline" hidden>Recheck same transaction</button><p id="walletIdentity" class="small">No wallet connected.</p></aside>
-</div><script type="module" src="/src/main.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4f7f6">
+<meta name="description" content="FLOWFAULT — accountable worker handoffs, verifiable GenLayer AI decisions, and one-time rework.">
+<title>FLOWFAULT — Verified work, clear decisions</title>
+</head>
+<body>
+<div class="shell">
+ <aside class="sidebar">
+  <a class="brand" href="#overview"><span class="logo">F<span class="dot">.</span></span><span>FLOWFAULT<small>WORKFLOW PROTOCOL</small></span></a>
+  <div class="sideLabel">WORKSPACE</div>
+  <nav aria-label="Main navigation">
+   <button data-page="overview" class="active">Overview <span>01</span></button>
+   <button data-page="workflow">Workflow <span>02</span></button>
+   <button data-page="verify">Chain explorer <span>03</span></button>
+  </nav>
+  <div class="sidebarBottom"><span class="sidebarTag">● STUDIONET · 61999</span><p>A GenLayer-powered accountability workflow. No Mainnet claims.</p><a id="sourceLink" href="#" target="_blank" rel="noopener">Source on GitHub ↗</a></div>
+ </aside>
+ <main>
+  <header><div id="breadcrumb">Overview</div><div class="headRight"><span class="network" id="network">Checking Studionet…</span><button id="walletBtn" class="quiet">Connect wallet</button></div></header>
+  <div class="content">
+   <section id="overview" class="page">
+    <div class="eyebrow" id="category">PROOF-CARRYING WORKFLOW ACCOUNTABILITY</div>
+    <h1 id="heroTitle">Accountability, without the guesswork.</h1>
+    <p class="lede" id="heroSub"></p>
+    <div class="heroButtons"><button data-page="workflow" class="primary">Open workflow →</button><button data-page="verify" class="outline">Explore on-chain proof</button></div>
+    <div class="stats">
+      <div><small>Network</small><strong>Studionet</strong><span>Chain ID 61999</span></div>
+      <div><small>Contracts</small><strong>02</strong><span>Court + Recovery Gate</span></div>
+      <div><small>Integration</small><strong id="deploymentState">CHECKING</strong><span>Verified source and linkage</span></div>
+    </div>
+    <section class="panel casePeek"><div><span class="eyebrow">LIVE CHAIN STATE</span><h2>Latest on-chain case</h2><p id="homeCase">Loading finalized data…</p></div><button data-page="workflow" class="outline">Open steps →</button></section>
+    <section class="panel about"><h2>How it works</h2><div class="how"><div><span>01</span><strong>Lock</strong><p>Owner freezes the task and assigned worker wallets.</p></div><div><span>02</span><strong>Evaluate</strong><p>Signed worker outputs and a GenLayer AI verdict.</p></div><div><span>03</span><strong>Recover</strong><p>Only the assigned worker can submit one rework receipt.</p></div></div></section>
+    <div class="boundary"><strong>Scope</strong><p id="boundaries"></p></div>
+    <span id="featureText" hidden></span>
+   </section>
+   <section id="workflow" class="page" hidden>
+     <div class="eyebrow">SIGNED WORKFLOW · ONE STEP AT A TIME</div>
+     <h1>Work, sign, verify.</h1>
+     <p class="lede">Follow the steps in order. The transaction panel tracks your signature, GenLayer finality and the actual stored receipt.</p>
+     <div class="caseBar"><div><div class="caseBarTop"><strong id="caseTitle">Loading case…</strong><span id="caseStatus" class="caseStatus">Checking</span></div><p id="caseRoles">Three distinct wallets are required.</p><small id="caseRefreshLabel">Latest-final chain state</small></div><div class="caseBarButtons"><button class="outline" id="refreshCase">↻ Refresh</button><button class="outline" id="startCase">+ New case</button></div></div>
+     <div id="caseComplete" class="caseComplete" hidden></div>
+     <div id="stepNav" class="stepNav" aria-label="Workflow steps"></div>
+     <div class="stepIntro" id="stepIntro"></div>
+     <div id="forms"></div>
+   </section>
+   <section id="verify" class="page" hidden>
+     <div class="eyebrow">PUBLIC · NO WALLET REQUIRED</div>
+     <h1>Proof, not promises.</h1>
+     <p class="lede">Read finalized records from GenLayer directly. A signed transaction counts as complete only when execution and persisted state match.</p>
+     <section class="panel"><div class="panelHeading"><h2>On-chain record</h2><span class="finalTag">LATEST_FINAL</span></div>
+      <form id="readForm"><div class="fieldGrid"><label>What to inspect<select id="readMethod"></select></label><label>Case / Receipt ID<input id="readId" type="number" min="1" value="1"></label><label>Other ID<input id="readOther" type="number" min="1" value="1"></label><label>Actor (only if needed)<input id="readActor" placeholder="0x…"></label></div><button class="outline" type="submit">Read on-chain state →</button></form>
+      <pre id="readResult" class="output">Choose a read method.</pre>
+     </section>
+     <section class="panel"><h2>Source & receipts</h2><p>Contract addresses and source are public. Deployed contract schemas and linked state have passed independent preflight checks. The signed Case #1 and Receipt #1 are documented; new work must still be signed and verified.</p><a id="githubLink" target="_blank" rel="noopener">Explore repository ↗</a></section>
+   </section>
+  </div>
+ </main>
+ <aside class="activity" id="activity" aria-live="polite">
+  <div class="activityHeader"><span class="eyebrow">TRANSACTION TRACKER</span><span id="txBadge" class="txBadge">READY</span></div>
+  <div class="activityIcon">↗</div>
+  <h2 id="txTitle">Ready to sign.</h2>
+  <p id="txMessage">Choose a step and connect the right wallet.</p>
+  <div id="txHashText" class="txHashText">No transaction sent yet</div>
+  <div class="pipeline">
+    <div id="phase1"><span>01</span> Wallet signature</div>
+    <div id="phase2"><span>02</span> GenLayer finality</div>
+    <div id="phase3"><span>03</span> State verified</div>
+  </div>
+  <div id="txNextWrap" class="txNextWrap" hidden><p id="txNextText"></p><button class="primary" id="txNext">Continue →</button></div>
+  <a id="txExplorer" target="_blank" rel="noopener" hidden>View transaction in Explorer ↗</a>
+  <button id="recheck" class="outline" hidden>Recheck the same transaction</button>
+  <p id="walletIdentity" class="walletIdentity">No wallet connected.</p>
+ </aside>
+</div>
+<script type="module" src="/src/main.js"></script>
+</body></html>
