@@ -2,7 +2,7 @@ export const project = {
  id:"flowfault",name:"FLOWFAULT",repo:"bearbaba/FLOWFAULT",
  eyebrow:"PROOF-CARRYING WORKFLOW ACCOUNTABILITY",
  title:"When work breaks, responsibility must be provable.",
- intro:"Freeze the task, source and two signed worker outputs. GenLayer AI consensus attributes the failure, then a separate Gate permits only the responsible worker to submit one traceable revision.",
+ intro:"One clear path from a signed work agreement to an AI decision and a traceable correction. Every action is signed. Every result is verified on-chain.",
  feature:"HandoffCourt stores a task owner, immutable source, assigned Worker A and Worker B, their SHA-256-matched artifacts and a signed dispute. Independent GenLayer comparative AI consensus records REWORK_A, REWORK_B, SHARED or UNVERIFIABLE. RecoveryGate reads live Court authorization and lets only the named worker submit one new, hashed artifact. Its receipt records SUBMITTED, never a fabricated claim of correctness.",
  boundaries:"Experimental synthetic multi-worker workflow. Browser workers run real deterministic functions on a documented fixture, but are not external autonomous AI agents. A rework receipt proves submission by the authorized wallet, not that the fix is correct. No financial dispute settlement or real-world job certification.",
  contracts:{court:"FLOWFAULT_COURT_ADDRESS",gate:"FLOWFAULT_RECOVERY_ADDRESS"},

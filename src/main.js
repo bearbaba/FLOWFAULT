@@ -43,11 +43,12 @@ function paintSteps(){
  for(const b of $('stepNav').querySelectorAll('[data-go-step]'))b.onclick=()=>goStep(Number(b.dataset.goStep));
  const current=steps[activeStep];
  for(const panel of document.querySelectorAll('[data-action]'))panel.hidden=panel.dataset.action!==current.key;
- const roleAddress=current.role==='Owner'?liveCase?.owner:current.role==='Worker A'?liveCase?.worker_a:current.role==='Worker B'?liveCase?.worker_b:
+ const roleAddress=current.role==='Owner'?(activeStep===0?null:liveCase?.owner):current.role==='Worker A'?liveCase?.worker_a:current.role==='Worker B'?liveCase?.worker_b:
   current.role==='Responsible worker'?(liveCase?.verdict==='REWORK_B'?liveCase?.worker_b:liveCase?.verdict==='REWORK_A'?liveCase?.worker_a:null):null;
  $('stepIntro').innerHTML='<div><div class="stepKicker">STEP '+(activeStep+1)+' OF 6 · '+esc(current.role)+'</div>'+
   '<h2>'+esc(current.name)+'</h2><p>'+esc(current.tip)+'</p>'+
   (roleAddress?'<p class="roleWallet">Required wallet <strong>'+esc(shortAddr(roleAddress))+'</strong></p>':'')+
+  (roleAddress&&account&&account.toLowerCase()!==roleAddress.toLowerCase()?'<p class="stepWarning">Wrong wallet selected. Click Switch account before signing this step.</p>':'')+
   (done[activeStep]?'<p class="stepDone">✓ This step is already confirmed on-chain for the selected case.</p>':'')+
   (activeStep===5&&liveCase&& !['REWORK_B','REWORK_A'].includes(liveCase.verdict)?'<p class="stepWarning">This verdict does not authorize a replacement. Review the case instead.</p>':'')+
   '</div>';
@@ -55,7 +56,7 @@ function paintSteps(){
   btn.hidden=(activeStep===1?btn.dataset.worker!=='A':activeStep===2?btn.dataset.worker!=='B_FAULT':true);
  }
  for(const b of document.querySelectorAll('[data-sign]')){
-  b.disabled=busy||!config?.configured||!!(done[activeStep]&&activeStep!==0)||
+  b.disabled=busy||!config?.configured||!!(roleAddress&&account&&account.toLowerCase()!==roleAddress.toLowerCase())||!!(done[activeStep]&&activeStep!==0)||
     !!(activeStep===5&&liveCase&&!['REWORK_A','REWORK_B'].includes(liveCase.verdict));
  }
  for(const key of ['submit_evidence','open_dispute','adjudicate','submit_rework']){
@@ -129,12 +130,13 @@ function proposeNext(record,proof){
 function notice(title, detail, phase=0, hash='') {
   $('txTitle').textContent=title;
   $('txMessage').textContent=detail;
-  $('txBadge').textContent=phase===3?'VERIFIED':phase===2?'TRACKING':phase===1?'SIGNING':/failed|error|unavailable/i.test(title)?'ATTENTION':'READY';
-  $('txBadge').className='txBadge '+(phase===3?'isGood':phase>=1?'isActive':'');
+  const hasIssue=/fail|error|unverif|not confirmed|not submitted|unavailable/i.test(title);
+  $('txBadge').textContent=phase===3?'VERIFIED':hasIssue?'ATTENTION':phase===2?'TRACKING':phase===1?'SIGNING':'READY';
+  $('txBadge').className='txBadge '+(phase===3?'isGood':hasIssue?'isIssue':phase>=1?'isActive':'');
   $('activity').classList.toggle('engaged',phase>=1||!!hash);
   for(let n=1;n<=3;n++)$('phase'+n).className=n<phase?'done':n===phase?'current':'';
   $('txExplorer').hidden=!hash;
-  $('txHashText').textContent=hash?shortAddr(hash)+' · saved transaction':'No transaction sent yet';
+  $('txHashText').textContent=hash?hash.slice(0,10)+'…'+hash.slice(-8)+' · transaction saved':'No transaction sent yet';
   if(hash)$('txExplorer').href=explorer+encodeURIComponent(hash);
   if(phase!==3)$('txNextWrap').hidden=true;
 }
@@ -207,16 +209,20 @@ function renderForms(){
 }
 function updateAccount(v=''){
   account=v;
-  $('walletBtn').textContent=v?v.slice(0,6)+'…'+v.slice(-4)+' · Disconnect':'Connect wallet';
-  $('walletIdentity').textContent=v?'Connected wallet: '+v:'No wallet connected.';
+  $('walletBtn').textContent=v?shortAddr(v)+' · Switch':'Connect wallet';
+  $('walletIdentity').textContent=v?'Active signer: '+v:'No wallet connected.';
+  if($('stepNav')?.children.length)paintSteps();
 }
 async function connect(){
-  if(account){updateAccount();return}
-  if(!window.ethereum) throw Error('An EIP-1193 wallet (such as MetaMask) is required to sign.');
+  if(!window.ethereum)throw Error('A wallet extension such as MetaMask is required to sign.');
+  if(account){
+    try{await window.ethereum.request({method:'wallet_requestPermissions',params:[{eth_accounts:{}}]})}
+    catch(e){if(e?.code===4001)throw Error('Account selection cancelled. Switch accounts in your wallet extension.')}
+  }
   const a=await window.ethereum.request({method:'eth_requestAccounts'});
   if(!ADDRESS.test(a?.[0]||''))throw Error('No valid wallet account.');
   updateAccount(a[0]);
-  notice('Wallet connected','No transaction submitted. Review the role and arguments.');
+  notice('Wallet selected','Review the required role above. If it is the wrong wallet, switch accounts in your wallet extension.');
 }
 $('walletBtn').onclick=()=>connect().catch(e=>notice('Wallet connection failed',e.message));
 window.ethereum?.on?.('accountsChanged',a=>{updateAccount(a?.[0]||'');notice('Wallet changed','Please review the active role before signing again.')});
@@ -470,7 +476,20 @@ async function generateReworkDraft(){
 }
 $('recheck').onclick=async()=>{const record=loadPending();if(record)await follow(record);else notice('No pending hash','Previous status remains visible; no automatic retry was sent.')};
 $('refreshCase').onclick=()=>refreshProgress(true);
-$('startCase').onclick=()=>goStep(0);
+$('startCase').onclick=()=>{
+  const previous=liveCase;
+  activeCaseId=null;liveCase=null;liveReceipt=null;
+  for(const [key,value] of Object.entries(project.samples.case)){
+    const field=$('f_open_case_'+key);
+    if(field)field.value=String(value);
+  }
+  if(previous){
+    $('f_open_case_worker_a').value=previous.worker_a;
+    $('f_open_case_worker_b').value=previous.worker_b;
+  }
+  goStep(0);
+  notice('New case draft ready','Review the two worker wallets and sample source. Connect an Owner wallet, then sign.');
+};
 renderMeta();renderForms();renderReads();paintSteps();
 showPage(['overview','workflow','verify'].includes(location.hash.slice(1))?location.hash.slice(1):'overview');
 refreshConfig().then(()=>{const r=loadPending();if(r?.hash){$('recheck').hidden=false;follow(r)}});
