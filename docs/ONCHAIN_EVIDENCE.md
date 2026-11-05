@@ -40,6 +40,17 @@ Signer identities:
 
 **Demonstrated:** GenLayer contract deployment and linkage, owner-signed work agreement, two distinct worker-signed digests, owner dispute, persisted comparative AI verdict, cross-contract permission, and one authorized corrective submission.
 
-**Not established by the above:** independent proof of real autonomous agents, validation that the correction is actually correct, a signed duplicate-`submit_rework` rejection, signer-denial transaction on an unused case, hash mismatch transaction, ambiguous/SHARED case, or a web E2E demo/video. Do not claim those tests without their own transaction receipts. The owner-worker collision rollback is a real negative test and is explicitly recorded as such.
+**Not established by the above:** independent proof of real autonomous agents, validation that the correction is actually correct, signer-denial transaction on an unused case, hash mismatch transaction, ambiguous/SHARED case, or a web E2E demo/video. Do not claim those tests without their own transaction receipts. The owner-worker collision rollback is a real negative test and is explicitly recorded as such.
 
 See [deployment verification](https://github.com/bearbaba/FLOWFAULT/actions/runs/41996422799) for source/schema verification. The project's source verification found normalized match (not byte-for-byte match), and that should remain visible.
+
+## Additional Studio negative test — duplicate RecoveryGate submission
+
+- Transaction: https://explorer-studio.genlayer.com/tx/0xae0dcb9dbb88f7ece9dbb0fb1c539f712019e0f1e65751e7e33cfd8aedacdff9
+- Contract method: `RecoveryGate.submit_rework`; Case ID `1`, identical replacement JSON and SHA-256 to the successful Receipt #1.
+- Reported status: `FINALIZED`, GenVM `ERROR` / rollback; consensus `Accepted`.
+- Exact rollback reason: `case already has rework receipt`.
+- Validator records supplied: three validator `Agree` results for this error; two other validator executions cancelled after quorum.
+- Follow-up read `receipt_for(1)` at `LATEST_FINAL` was successful and still returned the original Worker B Receipt #1, including the same original and replacement hashes and status `REWORK_SUBMITTED_NOT_VERIFIED`.
+- Case `get_case(1)` still returned `DECIDED` / `REWORK_B`.
+- This proves duplicate submission rejection for this Case, not independent wrong-signer denial on a new Case.
