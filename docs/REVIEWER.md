@@ -36,7 +36,7 @@ Browser: src/main.js; deterministic workers: lib/workers.js; pure state verifica
 - A separate owner/worker address collision attempt was finalized with GenVM rollback (real negative test).
 - [Transaction-by-transaction evidence and latest-final readback](ONCHAIN_EVIDENCE.md).
 
-The signed duplicate-rework rejection is now evidenced: the second `submit_rework(1, ...)` finalized with GenVM rollback `case already has rework receipt`, and a subsequent `LATEST_FINAL` `receipt_for(1)` retained the original receipt. See [evidence ledger](ONCHAIN_EVIDENCE.md). Independent signer-denial on a new Case, unchanged-hash rejection, ambiguous verdict and web video remain unperformed.
+The signed duplicate-rework rejection is now evidenced: the second `submit_rework(1, ...)` finalized with GenVM rollback `case already has rework receipt`, and a subsequent `LATEST_FINAL` `receipt_for(1)` retained the original receipt. See [evidence ledger](ONCHAIN_EVIDENCE.md). An additional `open_dispute(1)` attempt was rejected at GenVM with `[rollback] owner only`; finalized Court and Gate state remained unchanged (see the evidence ledger). The supplied transaction details did not show a `From` address, so signer attribution remains subject to explorer confirmation. Independent unauthorized RecoveryGate rework on a new Case, unchanged-hash rejection, ambiguous verdict and web video remain unperformed.
 
 ## Disclosures
 
