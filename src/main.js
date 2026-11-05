@@ -47,11 +47,12 @@ function paintSteps(){
   current.role==='Responsible worker'?(liveCase?.verdict==='REWORK_B'?liveCase?.worker_b:liveCase?.verdict==='REWORK_A'?liveCase?.worker_a:null):null;
  $('stepIntro').innerHTML='<div><div class="stepKicker">STEP '+(activeStep+1)+' OF 6 · '+esc(current.role)+'</div>'+
   '<h2>'+esc(current.name)+'</h2><p>'+esc(current.tip)+'</p>'+
-  (roleAddress?'<p class="roleWallet">Required wallet <strong>'+esc(shortAddr(roleAddress))+'</strong></p>':'')+
+  (roleAddress?'<p class="roleWallet">Assigned signer <strong>'+esc(shortAddr(roleAddress))+'</strong></p>':'')+(roleAddress&&(!account||account.toLowerCase()!==roleAddress.toLowerCase())?'<button type="button" class="outline roleSwitch" id="roleSwitch">Connect / switch signer →</button>':'')+
   (roleAddress&&account&&account.toLowerCase()!==roleAddress.toLowerCase()?'<p class="stepWarning">Wrong wallet selected. Click Switch account before signing this step.</p>':'')+
   (done[activeStep]?'<p class="stepDone">✓ This step is already confirmed on-chain for the selected case.</p>':'')+
   (activeStep===5&&liveCase&& !['REWORK_B','REWORK_A'].includes(liveCase.verdict)?'<p class="stepWarning">This verdict does not authorize a replacement. Review the case instead.</p>':'')+
   '</div>';
+ const switchButton=$('roleSwitch');if(switchButton)switchButton.onclick=()=>connect().catch(e=>notice('Wallet selection',e.message));
  for(const btn of document.querySelectorAll('[data-worker]')){
   btn.hidden=(activeStep===1?btn.dataset.worker!=='A':activeStep===2?btn.dataset.worker!=='B_FAULT':true);
  }
@@ -79,7 +80,23 @@ function paintSteps(){
   $('completeNew').onclick=()=>$('startCase').click();
  }
  else $('caseComplete').hidden=true;
+ updateGuide();
 }
+function updateGuide(){
+ const next=suggestedStep(),finished=!!liveReceipt,step=steps[next];
+ const roles=['Owner','Worker A','Worker B','Owner','Any wallet',liveCase?.verdict==='REWORK_A'?'Worker A':'Worker B'];
+ const role=roles[next],wallet=role==='Owner'?liveCase?.owner:role==='Worker A'?liveCase?.worker_a:role==='Worker B'?liveCase?.worker_b:null;
+ $('guideState').textContent=!liveCase?'NEW TASK':finished?'COMPLETE':'IN PROGRESS';
+ $('guideTitle').textContent=!liveCase?'Create a new task':finished?'Case #'+liveCase.id+' · Rework received':'Case #'+liveCase.id+' · '+step.name;
+ $('guideText').textContent=!liveCase?'Assign two worker wallets and sign a task as Owner. An example task is ready to fill.':finished?'GenLayer has recorded the AI verdict and authorized recovery receipt. Inspect the saved on-chain proof.':'Next: '+step.tip+(wallet?' Signer: '+shortAddr(wallet)+'.':'')+(wallet&&account&&account.toLowerCase()!==wallet.toLowerCase()?' Switch to the assigned wallet first.':'');
+ $('guidePrimary').textContent=!liveCase||finished?'Create a new task →':'Continue · '+step.name+' →';
+ $('guidePrimary').onclick=()=>!liveCase||finished?$('startCase').click():goStep(next);
+ $('guideReview').textContent=finished?'View recovery receipt':'Inspect on-chain proof';
+ $('guideReview').onclick=()=>{$('readMethod').value=finished?'3':'0';$('readId').value=String(activeCaseId||1);updateReadFields();showPage('verify');handleRead().catch(e=>{$('readResult').textContent='Read unavailable: '+e.message})};
+ if(liveCase&&document.activeElement!==$('caseJump'))$('caseJump').value=String(liveCase.id);
+ $('caseLoadHint').textContent=liveCase?'Case #'+liveCase.id+' · latest-final state':'Create a case to begin';
+}
+
 function goStep(i){
  activeStep=Math.max(0,Math.min(5,i));
  paintSteps();
@@ -101,6 +118,7 @@ async function refreshProgress(recommend=false){
     liveReceipt=raw&&typeof raw==='object'&&raw.case_id===id?raw:null;
   }
   if(recommend)activeStep=suggestedStep();
+  if(liveCase)$('readId').value=String(liveCase.id);
   paintSteps();
   $('caseRefreshLabel').textContent='Latest-final state';
  }catch(e){
@@ -181,10 +199,10 @@ function makeField(key, title, kind, method) {
 function renderForms(){
   $('forms').innerHTML=project.forms.map(f=>
     '<section class="action" data-action="'+esc(f.key)+'" hidden>'+
-    '<div class="actionTop"><span class="pill">'+esc(f.scope.toUpperCase())+' · '+esc(f.method)+'</span><span class="safeHint">Studionet · Test GEN only</span></div>'+
+    '<div class="actionTop"><span class="pill">'+esc(f.title)+'</span><span class="safeHint">GenLayer Studionet · test GEN</span></div>'+'<p class="actionHelp">'+esc(f.subtitle)+'</p>'+(f.key==='open_case'?'<div class="taskTemplate"><div><strong>Example task · Invoice handoff</strong><p>Assign workers, review signed reports and resolve a disputed handoff.</p></div><button type="button" class="outline" data-preset="case" data-target="open_case">Fill example task →</button></div>':'')+
     '<form id="form_'+esc(f.key)+'"><div class="fieldGrid">'+f.fields.map(x=>makeField(x[0],x[1],x[2],f.key)).join('')+'</div>'+
     '<div class="actions">'+
-    (f.preset?'<button class="outline" type="button" data-preset="'+esc(f.preset)+'" data-target="'+esc(f.key)+'">Use sample data</button>':'')+
+    (f.preset&&f.key!=='open_case'?'<button class="outline" type="button" data-preset="'+esc(f.preset)+'" data-target="'+esc(f.key)+'">Use example details</button>':'')+
     (f.key==='submit_evidence'?
       '<button class="outline" type="button" data-worker="A">Generate Worker A output</button>'+
       '<button class="outline" type="button" data-worker="B_FAULT">Generate faulty Worker B (27)</button>':'')+
@@ -481,6 +499,7 @@ async function generateReworkDraft(){
 }
 $('recheck').onclick=async()=>{const record=loadPending();if(record)await follow(record);else notice('No pending hash','Previous status remains visible; no automatic retry was sent.')};
 $('refreshCase').onclick=()=>refreshProgress(true);
+$('loadCase').onclick=async()=>{if(busy)return;const old=activeCaseId;try{const id=numberField($('caseJump').value.trim());if(id<1)throw Error('Enter a valid Case ID.');activeCaseId=id;await refreshProgress(true);if(liveCase?.id!==id)throw Error('Case not found.');notice('Case loaded','Case #'+id+' is ready.')}catch(e){activeCaseId=old;await refreshProgress(true);notice('Cannot open case',e.message)}};
 $('startCase').onclick=()=>{
   const previous=liveCase;
   activeCaseId=null;liveCase=null;liveReceipt=null;
