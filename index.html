@@ -32,15 +32,22 @@
       <div><small>Integration</small><strong id="deploymentState">CHECKING</strong><span>Verified source and linkage</span></div>
     </div>
     <section class="panel casePeek"><div><span class="eyebrow">LIVE CHAIN STATE</span><h2>Latest on-chain case</h2><p id="homeCase">Loading finalized data…</p></div><button data-page="workflow" class="outline">Open steps →</button></section>
-    <section class="panel about"><h2>How it works</h2><div class="how"><div><span>01</span><strong>Lock</strong><p>Owner freezes the task and assigned worker wallets.</p></div><div><span>02</span><strong>Evaluate</strong><p>Signed worker outputs and a GenLayer AI verdict.</p></div><div><span>03</span><strong>Recover</strong><p>Only the assigned worker can submit one rework receipt.</p></div></div></section>
+    <section class="panel about"><h2>How it works</h2><div class="how"><div><span>01</span><strong>Lock</strong><p>Owner freezes the task and assigned worker wallets.</p></div><div><span>02</span><strong>Evaluate</strong><p>Compare signed evidence and record the AI decision.</p></div><div><span>03</span><strong>Recover</strong><p>The responsible worker submits one signed correction.</p></div></div></section>
     <div class="boundary"><strong>Scope</strong><p id="boundaries"></p></div>
     <span id="featureText" hidden></span>
    </section>
    <section id="workflow" class="page" hidden>
      <div class="eyebrow">SIGNED WORKFLOW · ONE STEP AT A TIME</div>
-     <h1>Work, sign, verify.</h1>
-     <p class="lede">Follow the steps in order. The transaction panel tracks your signature, GenLayer finality and the actual stored receipt.</p>
+     <h1>Assign. Review. Resolve.</h1>
+     <p class="lede">Create a task, assign workers, review their evidence and resolve a disputed handoff. Follow one clear action at a time.</p>
      <div class="caseBar"><div><div class="caseBarTop"><strong id="caseTitle">Loading case…</strong><span id="caseStatus" class="caseStatus">Checking</span></div><p id="caseRoles">Three distinct wallets are required.</p><small id="caseRefreshLabel">Latest-final chain state</small></div><div class="caseBarButtons"><button class="outline" id="refreshCase">↻ Refresh</button><button class="outline" id="startCase">+ New case</button></div></div>
+     <section class="taskGuide" aria-label="Your next step">
+       <div class="guideHead"><span class="eyebrow">WORKSPACE · NEXT ACTION</span><span class="guideTag" id="guideState">Ready</span></div>
+       <h2 id="guideTitle">Your next step, made simple.</h2>
+       <p id="guideText">Open a task or start a new one. FLOWFAULT will guide each signer through the workflow.</p>
+       <div class="guideButtons"><button class="primary" id="guidePrimary" type="button">Start a task →</button><button class="outline" id="guideReview" type="button">Inspect proof</button></div>
+     </section>
+     <div class="caseFinder"><label for="caseJump">Switch case</label><input id="caseJump" type="number" min="1" step="1" placeholder="Case #" aria-label="Case number"><button class="outline" id="loadCase" type="button">Open case</button><span id="caseLoadHint">Showing latest finalized case</span></div>
      <div id="caseComplete" class="caseComplete" hidden></div>
      <div id="stepNav" class="stepNav" aria-label="Workflow steps"></div>
      <div class="stepIntro" id="stepIntro"></div>
@@ -52,6 +59,7 @@
      <p class="lede">Read finalized records from GenLayer directly. A signed transaction counts as complete only when execution and persisted state match.</p>
      <section class="panel"><div class="panelHeading"><h2>On-chain record</h2><span class="finalTag">LATEST_FINAL</span></div>
       <form id="readForm"><div class="fieldGrid"><label>What to inspect<select id="readMethod"></select></label><label>Case / Receipt ID<input id="readId" type="number" min="1" value="1"></label><label>Other ID<input id="readOther" type="number" min="1" value="1"></label><label>Actor (only if needed)<input id="readActor" placeholder="0x…"></label></div><button class="outline" type="submit">Read on-chain state →</button></form>
+      <div id="readSummary" class="readSummary" hidden></div>
       <pre id="readResult" class="output">Choose a read method.</pre>
      </section>
      <section class="panel"><h2>Source & receipts</h2><p>Contract addresses and source are public. Deployed contract schemas and linked state have passed independent preflight checks. The signed Case #1 and Receipt #1 are documented; new work must still be signed and verified.</p><a id="githubLink" target="_blank" rel="noopener">Explore repository ↗</a></section>
