@@ -73,8 +73,11 @@ function paintSteps(){
   'Owner '+shortAddr(liveCase.owner)+' · A '+shortAddr(liveCase.worker_a)+' · B '+shortAddr(liveCase.worker_b):'Three distinct wallets are required.';
  $('homeCase').textContent=liveCase?
   ('#'+liveCase.id+' · '+(liveReceipt?'Receipt #'+liveReceipt.id:liveCase.verdict==='PENDING'?liveCase.stage:liveCase.verdict)):'No case';
- if(liveCase&&liveReceipt){$('caseComplete').hidden=false;$('caseComplete').textContent=
-  'Case #'+liveCase.id+' · '+liveCase.verdict+' · Receipt #'+liveReceipt.id+' · REWORK SUBMITTED (not independently verified)';}
+ if(liveCase&&liveReceipt){
+  $('caseComplete').hidden=false;
+  $('caseComplete').innerHTML='<span>✓ Case #'+liveCase.id+' · '+esc(liveCase.verdict)+' · Receipt #'+liveReceipt.id+' · Rework submitted (not independently verified)</span><button type="button" class="outline" id="completeNew">Start a new case →</button>';
+  $('completeNew').onclick=()=>$('startCase').click();
+ }
  else $('caseComplete').hidden=true;
 }
 function goStep(i){
@@ -305,6 +308,7 @@ async function validateCaseWrite(f,values){
 
 async function startSign(f) {
   if(busy)return;
+  const submittedStep=activeStep;
   const prior=loadPending();
   if(prior){notice('Pending transaction still stored','Recheck the same transaction before signing another.',2,prior.hash);$('recheck').hidden=false;return}
   if(!config?.configured){notice('Studio deployment required','Configure both deployed contracts before any signing. No transaction sent.');return}
@@ -322,7 +326,7 @@ async function startSign(f) {
     if(!ADDRESS.test(contract||''))throw Error('Configured contract address unavailable');
     const sender=await ensureWallet();
     await validateCaseWrite(f,values);
-    const record={form:f.key,scope:f.scope,method:f.method,args:values,actor:account.toLowerCase(),step:activeStep,hash:'',prior:null};
+    const record={form:f.key,scope:f.scope,method:f.method,args:values,actor:account.toLowerCase(),step:submittedStep,hash:'',prior:null};
     if(f.key==='open_case'){
       const before=await api('court','totals');
       if(!Number.isSafeInteger(before?.cases)||before.cases<0)
@@ -365,6 +369,7 @@ async function follow(record){
             if(proof.ok){
               sessionStorage.removeItem(pendingKey);
               if(Number.isSafeInteger(proof.caseId))activeCaseId=proof.caseId;
+              else if(Number.isSafeInteger(record.args?.[0]))activeCaseId=record.args[0];
               await refreshProgress(false);
               notice('FINALIZED / VERIFIED',proof.message,3,record.hash);
               proposeNext(record,proof);

@@ -52,3 +52,5 @@ input:focus,textarea:focus,select:focus{border-color:#61a786;box-shadow:0 0 0 3p
 /* Wallet mismatch and transaction-follow refinements */
 .txBadge.isIssue{background:#fff0e7;color:#a76036}
 @media(max-width:700px){body:has(.activity.engaged) .content{padding-bottom:280px}.activity.engaged{position:fixed;left:0;right:0;bottom:0;width:100%;z-index:10;max-height:42vh}.activity:not(.engaged){position:sticky;bottom:0}}
+
+.caseComplete{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.caseComplete button{min-height:35px;padding:8px 12px;background:#fff;border-color:#bcddc7;color:#126344}
