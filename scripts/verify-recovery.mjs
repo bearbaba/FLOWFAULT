@@ -11,10 +11,13 @@ const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
 const read=async(method,args=[])=>{const raw=await client.readContract({address,functionName:method,args,transactionHashVariant:TransactionHashVariant.LATEST_FINAL});return typeof raw==='string'?JSON.parse(raw):raw;};
 const local=readFileSync('contracts/verified_recovery.py','utf8');
 const deployed=await client.getContractCode(address);
-if(local!==deployed)throw Error('Exact deployed source mismatch: local '+sha(local)+' deployed '+sha(deployed));
+const archived=readFileSync('contracts/verified_recovery_deployed.py','utf8');
+const normalize=s=>s.replace(/\r\n/g,'\n').replace(/\n+$/,'');
+if(archived!==deployed)throw Error('Exact deployed archive mismatch');
+if(normalize(local)!==normalize(deployed))throw Error('Source differs beyond line endings');
 const stats=await read('stats');
 if(stats.version!=='2.0.0'||stats.max_attempts!==2||stats.court.toLowerCase()!==court.toLowerCase()||JSON.stringify(stats.criteria)!==JSON.stringify(['agreement','source','dependency']))throw Error('Unexpected deployment configuration');
-console.log(JSON.stringify({address,court,source_sha256:sha(local),exact_source_match:true,stats},null,2));
+console.log(JSON.stringify({address,court,source_sha256:sha(local),deployed_sha256:sha(deployed),exact_source_match:local===deployed,exact_archive_match:true,line_endings_normalized_match:true,stats},null,2));
 if(process.env.FLOWFAULT_VERIFY_CASE){
  const id=Number(process.env.FLOWFAULT_VERIFY_CASE);
  if(!Number.isSafeInteger(id)||id<=0)throw Error('Invalid case ID');

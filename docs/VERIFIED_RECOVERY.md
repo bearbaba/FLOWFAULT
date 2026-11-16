@@ -36,7 +36,7 @@ This is a **new contract deployment**, not an upgrade to either original contrac
 - Vite production build.
 - Unsigned Studionet schema generation for the three contracts, including the new VerifiedRecovery ABI.
 
-These are implementation checks. New-contract deployment and signed V2 acceptance are still pending; the historical V1 ledger does not establish V2 execution.
+These are implementation checks. Signed V2 acceptance is still pending; the historical V1 ledger does not establish V2 execution.
 
 ## Deploy in Studio
 
@@ -70,3 +70,12 @@ Do not promise a predetermined AI result. Use a separate case if the two-attempt
 ## Milestone submission gate
 
 Portal **milestone v1** is the submission sequence; **VerifiedRecovery V2** is the product release. Before submission, link the actual diff/PR, deployed source proof, signed positive/negative evidence and a short new demo. Verify the accepted project snapshot against the portal to establish the precise before/after boundary. Keep the Changes & Improvements field under 1,000 characters and describe only verified delivered behavior.
+
+## Deployment verified — 16 November 2026
+
+- VerifiedRecovery: `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`.
+- Latest-final stats: version `2.0.0`, max attempts `2`, criteria `agreement/source/dependency`, attempt count `0` at verification.
+- Court binding: `0x02A5476d786f55a215B33d77bdb071acB787182b`.
+- `contracts/verified_recovery_deployed.py` preserves exact source bytes retrieved from chain, SHA-256 `7581207c462bc57cc3456e1a00cc72b2709e76e8cb4852d0f1d4945b5717d82b`.
+- Editable source differs only by CRLF versus LF and final newline. Both byte-level archive matching and line-ending-normalized development source matching are required by the verifier.
+- Deployment is established; signed revision/assessment/finalization evidence is pending.
