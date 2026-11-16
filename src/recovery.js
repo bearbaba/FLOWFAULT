@@ -38,7 +38,7 @@ async function configuration(){
 function add(parent,tag,text,cls){const el=document.createElement(tag);el.textContent=text;if(cls)el.className=cls;parent.append(el);return el;}
 function render(){
  const {c,r,attempts}=data,role=recoveryActions(c,r).role;
- $('casePanel').hidden=false;$('agreement').textContent=c.task_spec;$('state').textContent=r.state;
+ $('casePanel').hidden=false;$('agreement').textContent=c.task_spec;$('state').textContent=r.state;$('state').dataset.state=r.state;
  $('role').textContent=role?'Responsible worker '+role+': '+c['worker_'+role.toLowerCase()]+(role==='A'?' · A verification leaves downstream B review required.':''):'This case has no single-worker recovery authorization.';
  $('source').textContent=JSON.stringify({source:c.source_data,worker_a:c.a_output,worker_b:c.b_output},null,2);
  $('original').textContent=role?c[role.toLowerCase()+'_output']:'No eligible artifact';
@@ -47,6 +47,7 @@ function render(){
  if(!attempts.length)add($('history'),'p','No verified-recovery attempts. V1 receipts do not count as V2 assessments.');
  for(const a of attempts){
   const article=add($('history'),'article','','attempt');
+  article.dataset.status=a.status;
   add(article,'h3','Attempt '+a.round+' · '+a.status);
   add(article,'p','Signed by '+a.actor+' · SHA-256 '+a.new_sha256,'mono');
   add(article,'pre',a.new_output);
