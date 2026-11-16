@@ -1,6 +1,6 @@
 # FLOWFAULT
 
-> **Verified recovery implementation:** A new `VerifiedRecovery` contract and `/recovery.html` add criterion-based assessment, bounded revision history and explicit resolution. [Changes, validation and Studio deployment guide](docs/VERIFIED_RECOVERY.md). V2 deployment and Court binding are verified; signed V2 acceptance is pending; the live evidence below remains V1.
+> **Verified recovery V2:** A separate [Studionet contract](https://studio.genlayer.com/?import-contract=0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71) and `/recovery.html` add evidence-based `PASS / FAIL / REVIEW`, bounded revisions, and explicit recovery resolution. [Implementation and deployment verification](docs/VERIFIED_RECOVERY.md) · [Finalized readbacks and signed test instructions](docs/VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md) · [V2 PR #1](https://github.com/bearbaba/FLOWFAULT/pull/1). **Signed V2 revision, assessment, and finalization remain unverified; the historic Case #2 demo below is V1.**
 
 ### Proof-carrying accountability for multi-worker workflows
 
