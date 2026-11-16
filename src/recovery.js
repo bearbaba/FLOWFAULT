@@ -30,9 +30,11 @@ async function configuration(){
   $('deployment').textContent='Verified recovery deployment pending. Original FLOWFAULT cases remain accessible. Signing is disabled.';return;
  }
  const stats=await api('recovery','stats');
- if(!['2.0.0','2.1.0'].includes(stats.version)||stats.max_attempts!==2||String(stats.court).toLowerCase()!==config.court.toLowerCase()||
+ if(!['2.0.0','2.1.0','2.2.0'].includes(stats.version)||stats.max_attempts!==2||String(stats.court).toLowerCase()!==config.court.toLowerCase()||
     JSON.stringify(stats.criteria)!==JSON.stringify(['agreement','source','dependency']))throw Error('Recovery contract configuration does not match this release');
- if(stats.version==='2.1.0' && (stats.max_assessment_runs!==3 || stats.retry_policy!=='FORMAT_REVIEW_ONLY'))throw Error('Invalid V2.1 assessment retry policy');
+ if(['2.1.0','2.2.0'].includes(stats.version) &&
+    (stats.max_assessment_runs!==3 || stats.retry_policy!=='FORMAT_REVIEW_ONLY'))throw Error('Invalid assessment retry policy');
+ if(stats.version==='2.2.0' && stats.citation_mode!=='DETERMINISTIC_REFERENCE_IDS')throw Error('Invalid V2.2 citation mode');
  policy=stats;linked=true;$('deployment').textContent='Studionet 61999 · Verified recovery V'+stats.version+' · Court binding confirmed';
 }
 function add(parent,tag,text,cls){const el=document.createElement(tag);el.textContent=text;if(cls)el.className=cls;parent.append(el);return el;}
