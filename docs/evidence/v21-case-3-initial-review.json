@@ -1,0 +1,108 @@
+{
+  "title": "FLOWFAULT VerifiedRecovery V2.1 first persisted malformed-format REVIEW",
+  "date": "2026-11-16",
+  "network": "GenLayer Studionet",
+  "chain_id": 61999,
+  "contract": "0xcbc76A74B062ec16740355170ffE1700932Db636",
+  "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+  "tx": "0xcbb5ff4e78f43b65335c8c3ab92a9da580320435cf075ce8c88d503d667db37d",
+  "explorer_url": "https://explorer-studio.genlayer.com/tx/0xcbb5ff4e78f43b65335c8c3ab92a9da580320435cf075ce8c88d503d667db37d",
+  "method": "assess_revision",
+  "args": [
+    1
+  ],
+  "tx_result": {
+    "ok": true,
+    "hash": "0xcbb5ff4e78f43b65335c8c3ab92a9da580320435cf075ce8c88d503d667db37d",
+    "status": "FINALIZED",
+    "execution": "SUCCESS",
+    "consensus": "MAJORITYAGREE"
+  },
+  "finality": "LATEST_FINAL",
+  "attempt": {
+    "actor": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af",
+    "assessment": {
+      "checks": [],
+      "reason": "Assessment format or evidence references could not be verified.",
+      "verdict": "REVIEW"
+    },
+    "assessment_history": [
+      {
+        "assessment_sha256": "717e13de050520655af943e7f4ca368cf33ef19bc9d5c11c3d6b5e7af39cb40c",
+        "format_fallback": true,
+        "run": 1,
+        "verdict": "REVIEW"
+      }
+    ],
+    "assessment_runs": 1,
+    "case_id": 3,
+    "id": 1,
+    "new_output": "{\"reportedTotal\":50,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50.\"}",
+    "new_sha256": "074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367",
+    "role": "B",
+    "round": 1,
+    "snapshot": {
+      "a_output": "{\"approvedIds\":[\"INV4\",\"INV6\"],\"approvedTotal\":50}",
+      "a_sha256": "9b8bb2c7e5abcfef535369bad0d183b72d1f4b2df0a3ad66a0e63b297ddc44d7",
+      "b_output": "{\"reportedTotal\":55,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 55; INV5 (14) was unapproved.\"}",
+      "b_sha256": "a9f13785405e4fc70d9e577f5b2acbbe103fb6b56563d5ad3b1631b6467341d4",
+      "dispute": "Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B reports 55 despite those signed source amounts summing to 50. Determine whether Worker B alone violated the locked agreement using only frozen evidence.",
+      "id": 3,
+      "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+      "source_data": "[{\"id\":\"INV4\",\"amount\":31,\"approved\":true},{\"id\":\"INV5\",\"amount\":14,\"approved\":false},{\"id\":\"INV6\",\"amount\":19,\"approved\":true}]",
+      "source_sha256": "96e2a5374e92c68d6f59e91f02192cedd40536b1282af289dcbf616b116f2094",
+      "stage": "DECIDED",
+      "task_spec": "Process synthetic invoices. Worker A must output JSON containing the approvedIds and exact integer approvedTotal. Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts. A correct Worker A output with an inconsistent Worker B report requires REWORK_B.",
+      "verdict": "REWORK_B",
+      "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+      "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+    },
+    "snapshot_sha256": "ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7",
+    "status": "REVIEW"
+  },
+  "recovery": {
+    "attempts": [
+      1
+    ],
+    "case_id": 3,
+    "latest_attempt": 1,
+    "state": "REVIEW"
+  },
+  "stats": {
+    "attempts": 1,
+    "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+    "criteria": [
+      "agreement",
+      "source",
+      "dependency"
+    ],
+    "max_assessment_runs": 3,
+    "max_attempts": 2,
+    "retry_policy": "FORMAT_REVIEW_ONLY",
+    "version": "2.1.0"
+  },
+  "verified": {
+    "tx_accepted": true,
+    "correct_case_attempt": true,
+    "review_is_persisted": true,
+    "one_audited_run": true,
+    "current_attempt_review": true,
+    "retry_capacity": true,
+    "signer_correct": true,
+    "immutable_revision": true
+  },
+  "next_signed_action": {
+    "method": "retry_format_review",
+    "args": [
+      1
+    ],
+    "authorized_signer": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af",
+    "remaining_retry_calls": 2
+  },
+  "disclaimers": [
+    "REVIEW is a persisted technical-format/reference fallback, NOT a PASS or successful finalization.",
+    "The retry is authorized and bounded but does not guarantee a future PASS.",
+    "No retry transaction or finalization transaction for this V2.1 attempt has yet been observed.",
+    "Previous V2 Case #3 remains separate and terminal REVIEW on a different deployed contract."
+  ]
+}
