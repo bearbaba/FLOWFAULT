@@ -5,13 +5,13 @@ import {classifyTx,parseValue} from '../lib/verification.js';
 import {ADDRESS,recoveryActions,verifyRecoveryWrite} from '../lib/recovery.js';
 const $=id=>document.getElementById(id);
 const KEY='flowfault-verified-recovery-pending-v2';
-let config, actor='', data=null, busy=false, linked=false;
+let config, policy=null, actor='', data=null, busy=false, linked=false;
 const message=s=>{$('message').textContent=s;};
 const hash=async text=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))),v=>v.toString(16).padStart(2,'0')).join('');
 function pending(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}}
 function controls(){
- const actions=recoveryActions(data?.c,data?.r,actor), blocked=busy||!!pending()||!linked;
- for(const k of ['submit','assess','finalize']) $(k).disabled=blocked||!actions[k];
+ const actions=recoveryActions(data?.c,data?.r,actor,data?.attempts?.at(-1),policy), blocked=busy||!!pending()||!linked;
+ for(const k of ['submit','assess','retry','finalize']) $(k).disabled=blocked||!actions[k];
  $('load').disabled=busy; $('connect').disabled=busy; $('recheck').hidden=!pending(); $('recheck').disabled=busy;
  $('export').disabled=!data||busy;
 }
@@ -30,9 +30,10 @@ async function configuration(){
   $('deployment').textContent='Verified recovery deployment pending. Original FLOWFAULT cases remain accessible. Signing is disabled.';return;
  }
  const stats=await api('recovery','stats');
- if(stats.version!=='2.0.0'||stats.max_attempts!==2||String(stats.court).toLowerCase()!==config.court.toLowerCase()||
+ if(!['2.0.0','2.1.0'].includes(stats.version)||stats.max_attempts!==2||String(stats.court).toLowerCase()!==config.court.toLowerCase()||
     JSON.stringify(stats.criteria)!==JSON.stringify(['agreement','source','dependency']))throw Error('Recovery contract configuration does not match this release');
- linked=true;$('deployment').textContent='Studionet 61999 · Verified recovery V2 · Court binding confirmed';
+ if(stats.version==='2.1.0' && (stats.max_assessment_runs!==3 || stats.retry_policy!=='FORMAT_REVIEW_ONLY'))throw Error('Invalid V2.1 assessment retry policy');
+ policy=stats;linked=true;$('deployment').textContent='Studionet 61999 · Verified recovery V'+stats.version+' · Court binding confirmed';
 }
 function add(parent,tag,text,cls){const el=document.createElement(tag);el.textContent=text;if(cls)el.className=cls;parent.append(el);return el;}
 function render(){
@@ -54,6 +55,10 @@ function render(){
    for(const ref of c.references||[])add(check,'p',ref.field+': “'+ref.quote+'”','reference');
   }
   if(a.assessment?.reason)add(article,'p',a.assessment.reason);
+  if(Number.isInteger(a.assessment_runs)){
+   add(article,'p','AI assessment runs: '+a.assessment_runs+' / '+(policy?.max_assessment_runs||1)+(a.assessment?.checks?.length===0&&a.status==='REVIEW'?' · Formatting/reference REVIEW (not PASS)':''),'reference');
+   for(const h of a.assessment_history||[])add(article,'p','Run '+h.run+' · '+h.verdict+(h.format_fallback?' · invalid-format fallback':'')+' · audit '+h.assessment_sha256,'mono');
+  }
  }
  controls();
 }
@@ -82,8 +87,8 @@ async function sign(method){
  try{
   if(!actor)await connect();
   await configuration();if(!linked)throw Error('Verified recovery is not deployed');
-  const {c,r}=await load(), actions=recoveryActions(c,r,actor);
-  const key={submit_revision:'submit',assess_revision:'assess',finalize_recovery:'finalize'}[method];
+  const {c,r,attempts}=await load(), actions=recoveryActions(c,r,actor,attempts.at(-1),policy);
+  const key={submit_revision:'submit',assess_revision:'assess',retry_format_review:'retry',finalize_recovery:'finalize'}[method];
   if(!actions[key])throw Error('This action is not authorized in the current state');
   if(parseInt(await window.ethereum.request({method:'eth_chainId'}),16)!==61999)throw Error('Switch your wallet to GenLayer Studionet 61999');
   let args;
@@ -91,10 +96,15 @@ async function sign(method){
    const text=$('revision').value;
    if(text.length<8||text.length>1200)throw Error('Revision must contain 8–1200 characters');
    const digest=await hash(text);$('digest').textContent='SHA-256 '+digest;args=[c.id,text,digest];
-  }else args=method==='assess_revision'?[r.latest_attempt]:[c.id,r.latest_attempt];
+  }else args=['assess_revision','retry_format_review'].includes(method)?[r.latest_attempt]:[c.id,r.latest_attempt];
   const accounts=await window.ethereum.request({method:'eth_accounts'});
   if(accounts[0]?.toLowerCase()!==actor.toLowerCase())throw Error('Wallet changed; reconnect before signing');
   const record={method,args,caseId:c.id,actor,priorAttempt:r.latest_attempt,address:config.recovery,chainId:61999};
+  if(method==='retry_format_review'){
+   const previous=attempts.at(-1);
+   record.priorAssessmentRuns=previous.assessment_runs;
+   record.priorAssessmentHash=previous.assessment_history.at(-1).assessment_sha256;
+  }
   message('Review '+method+' in your wallet. This sends a Studionet transaction.');
   const tx=await createClient({chain:studionet,account:actor,provider:window.ethereum}).writeContract({address:config.recovery,functionName:method,args,value:0n});
   if(!/^0x[0-9a-fA-F]{64}$/.test(tx||''))throw Error('No valid transaction hash returned');
@@ -120,7 +130,7 @@ async function recheck(){
 }
 $('connect').onclick=()=>connect().catch(e=>message(e.message));
 $('load').onclick=async()=>{if(busy)return;busy=true;controls();try{await configuration();await load();message('Loaded finalized evidence.')}catch(e){message(e.message)}finally{busy=false;controls()}};
-$('submit').onclick=()=>sign('submit_revision');$('assess').onclick=()=>sign('assess_revision');$('finalize').onclick=()=>sign('finalize_recovery');$('recheck').onclick=recheck;
+$('submit').onclick=()=>sign('submit_revision');$('assess').onclick=()=>sign('assess_revision');$('retry').onclick=()=>sign('retry_format_review');$('finalize').onclick=()=>sign('finalize_recovery');$('recheck').onclick=recheck;
 $('export').onclick=()=>{if(!data)return;const blob=new Blob([JSON.stringify({network:61999,court:config.court,recovery:config.recovery,observedAt:new Date().toISOString(),...data},null,2)],{type:'application/json'});const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='flowfault-case-'+data.c.id+'-evidence.json';a.click();URL.revokeObjectURL(u)};
 window.ethereum?.on?.('accountsChanged',()=>{actor='';$('connect').textContent='Connect wallet';controls()});
 window.ethereum?.on?.('chainChanged',()=>message('Network changed. Studionet 61999 is required for signing.'));
