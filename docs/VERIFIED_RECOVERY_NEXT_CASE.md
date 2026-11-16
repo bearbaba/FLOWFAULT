@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — fresh-case signed negative-to-positive acceptance plan
 
-**IN PROGRESS — fresh Court Case #3 created and both Worker A and Worker B evidence signed and verified at finality; Owner dispute and later AI adjudication remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
+**IN PROGRESS — fresh Court Case #3 and both worker evidence submissions, plus Owner dispute, signed and verified at finality; AI adjudication and V2 revisions remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
 
 ## Network and signers
 
@@ -18,7 +18,7 @@
 1. **DONE / FINALIZED:** Owner called `open_case(worker_a,worker_b,task_spec,source_data)` using the exact strings below. Returned and independently persisted **Case ID #3**, confirmed by latest-final `get_case(3)`. [Signed transaction](https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f).
 2. **DONE / FINALIZED:** Worker A called `submit_evidence(case_id=3,output,output_sha256)` with the exact A artifact/digest below. [Signed transaction](https://explorer-studio.genlayer.com/tx/0xe374185b455195f0676f686cd1ddfb5c886fe94dc7765d5ef29983d7f8a7c1ba) returned `A`; latest-final `get_case(3)` stores the identical output and digest.
 3. **DONE / FINALIZED:** Worker B signed `submit_evidence(case_id=3,output,output_sha256)` with the deliberately inconsistent B artifact and digest. [Signed transaction](https://explorer-studio.genlayer.com/tx/0x154b4036445940ecba3f04c0bfb985f27e2a97c69ed68541973326ff041a6d13) returned `B`; latest-final `get_case(3)` stores identical B output and digest.
-4. Owner calls `open_dispute(case_id,reason)` with the statement below, then calls `adjudicate(case_id)`. Record actual finalized verdict. **Continue V2 only if persisted `REWORK_B`;** another verdict is not a failed transaction and must not be mislabeled as REWORK_B.
+4. **Owner dispute DONE / FINALIZED:** Owner called `open_dispute(case_id=3,reason)` with the exact statement below. [Transaction](https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc) was FINALIZED / SUCCESS; latest-final Court stage is `DISPUTED` and verdict still `PENDING`. **Next write: `adjudicate(3)`**. Continue V2 only if its persisted verdict becomes `REWORK_B`; do not predict AI consensus.
 
 ### open_case parameters
 
@@ -92,7 +92,14 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 - Independently read `LATEST_FINAL get_case(3)`: `b_output={"reportedTotal":55,"summary":"Approved invoices INV4 (31) and INV6 (19) total 55; INV5 (14) was unapproved."}` and `b_sha256=a9f13785405e4fc70d9e577f5b2acbbe103fb6b56563d5ad3b1631b6467341d4`.
 - Worker A artifact remains `approvedTotal=50`; source contains approved INV4=31 and INV6=19, totaling 50 (unapproved INV5=14). The B report is deliberately inconsistent but *no AI responsibility verdict has been recorded yet*.
 - Court remains `stage=OPEN`, `verdict=PENDING`, `dispute=""`; VerifiedRecovery V2 `get_recovery(3)` remains `NOT_STARTED` with no attempts.
-- **Next signer:** Owner `0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb` calls Court `open_dispute(case_id=3, reason=the exact reason above)` and waits for finalized `DISPUTED` state. `adjudicate(3)` must be run afterwards as a separate consensus transaction.
+- **Historical checkpoint:** Owner dispute was pending after B signed; the owner subsequently opened the dispute successfully (details below). Next is a separate `adjudicate(3)` AI-consensus transaction.
+
+### Case #3 Owner dispute finalized — 2026-11-16 10:25 ICT
+
+- Owner-signed transaction: [`0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc`](https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc), Normal execution, accepted consensus, `FINALIZED / SUCCESS`, `open_dispute(case_id=3, reason)` returned `null`.
+- Signer: owner `0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb`. The exact reason stored in `LATEST_FINAL get_case(3).dispute` matches the fixture above.
+- The independently read finalized Court state is now `stage=DISPUTED`, `verdict=PENDING`; both original A and B artifacts remain unchanged. `LATEST_FINAL get_recovery(3)` still reports `NOT_STARTED` with no V2 attempts.
+- **Next:** on the original HandoffCourt, call `adjudicate(3)` in Normal (Full Consensus); inspect the actual persisted verdict before attempting V2 `submit_revision`. A `REWORK_B` verdict is expected from the arithmetic but **not guaranteed** by AI.
 
 ## Phase 2 — V2 negative revision; if accepted as REWORK_B
 
@@ -128,7 +135,8 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | Court `open_case` | [0x9cb6ef…13b22f](https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f) | **FINALIZED / SUCCESS**; latest-final Court `get_case(3)` confirms owner, assigned workers, immutable task/source, `stage=OPEN`, `verdict=PENDING` |
 | Court Worker A `submit_evidence` | [0xe37418…a7c1ba](https://explorer-studio.genlayer.com/tx/0xe374185b455195f0676f686cd1ddfb5c886fe94dc7765d5ef29983d7f8a7c1ba) | **FINALIZED / SUCCESS**, returned `A`; latest-final `get_case(3)` confirms A output and SHA-256 |
 | Court Worker B `submit_evidence` | [0x154b40…1a6d13](https://explorer-studio.genlayer.com/tx/0x154b4036445940ecba3f04c0bfb985f27e2a97c69ed68541973326ff041a6d13) | **FINALIZED / SUCCESS**, returned `B`; latest-final `get_case(3)` confirms B output and SHA-256 |
-| Court Owner `open_dispute` / `adjudicate` | PENDING | PENDING |
+| Court Owner `open_dispute(3)` | [0xe7c1ea…992cc](https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc) | **FINALIZED / SUCCESS**; latest-final `get_case(3).stage=DISPUTED`, reason stored, verdict `PENDING` |
+| Court AI `adjudicate(3)` | PENDING | PENDING |
 | V2 first revision / first assessment | PENDING | PENDING |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
