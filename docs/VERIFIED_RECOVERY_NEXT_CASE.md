@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — fresh-case signed negative-to-positive acceptance plan
 
-**IN PROGRESS — full original Court workflow for fresh Case #3 is signed and verified at finality, including AI adjudication `REWORK_B`; V2 revision assessments remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
+**IN PROGRESS — signed fresh Case #3 Court workflow finalized `REWORK_B`; first VerifiedRecovery V2 revision was successfully signed and recorded as global attempt #2 (Case #3 round 1). AI assessment and retry remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
 
 ## Network and signers
 
@@ -120,7 +120,7 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 
 ## Phase 2 — V2 negative revision; now eligible after persisted REWORK_B
 
-1. Worker B calls `submit_revision(new_case_id, bad_revision, bad_revision_sha256)` on **VerifiedRecovery V2**, not the legacy RecoveryGate. Wait for finalized success and retrieve the actual new attempt ID.
+1. **DONE / FINALIZED:** Worker B called `submit_revision(case_id=3, bad_revision, bad_revision_sha256)` on **VerifiedRecovery V2**. [Transaction](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) succeeded, returned **global attempt ID `2`** (Case #3 round `1`), and latest-final `get_attempt(2)` and `get_recovery(3)` confirmed exact signed content and digests.
 2. Call `assess_revision(actual_attempt_id)`. If persisted `FAIL` or `REVIEW`, verify `finalize_recovery(new_case_id,attempt_id)` is **not authorized**. A rejected finalize may be demonstrated carefully, but do not claim it without a finalized execution failure. An uncertain REVIEW must not be called a FAIL.
 3. **Only if first assessment is FAIL or REVIEW**: Worker B calls `submit_revision(new_case_id, good_revision, good_revision_sha256)`; obtain new attempt ID. Call `assess_revision` and record its actual result. Only on stored `PASS`, call `finalize_recovery`.
 4. Verify that attempt #1 remains immutable, attempt #2 is current, the older attempt cannot be finalized, and `resolution` hashes match the latest attempt.
@@ -145,6 +145,16 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 
 `new_sha256`: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`
 
+### Case #3 V2 first signed revision — 2026-11-16 10:34 ICT
+
+- **Confirmed live signed V2 transaction:** [`0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c`](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c). Correct destination VerifiedRecovery V2 `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`, method `submit_revision`; authorized Worker B, Normal execution, 5 initial validators, `FINALIZED / SUCCESS`. Return value **`2`**.
+- Independently confirmed from `LATEST_FINAL get_attempt(2)`: `id=2`, `case_id=3`, `round=1`, `role=B`, signer `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`, `status=SUBMITTED`, `assessment={}`.
+- `new_output={"reportedTotal":52,"summary":"Corrected approved total 52 from INV4 and INV6."}`, `new_sha256=4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`.
+- The new attempt frozen Court snapshot digest is `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7`; frozen Court verdict remains `REWORK_B`.
+- Independently confirmed from `LATEST_FINAL get_recovery(3)`: `{"attempts":[2],"case_id":3,"latest_attempt":2,"state":"SUBMITTED"}`.
+- **Important:** global attempt `2` is **round 1 of Case #3**, not the second revision for this case. The contract supports a maximum of 2 attempts **per case**. Existing global attempt `1` belongs to historical Case #2.
+- **Next real signed action:** `assess_revision(attempt_id=2)` on VerifiedRecovery V2. The report value 52 conflicts with the locked approved total 50, but actual AI consensus remains **pending**. Do not assert FAIL or REVIEW until persisted final readback confirms it; do not finalize.
+
 ## Evidence gate — do not claim until observed
 
 | Step | New transaction hash | Finalized result |
@@ -155,7 +165,8 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | Court Owner `open_dispute(3)` | [0xe7c1ea…992cc](https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc) | **FINALIZED / SUCCESS**; latest-final `get_case(3).stage=DISPUTED`, reason stored, verdict `PENDING` |
 | Court AI `adjudicate(3)` | [0x5ee0c1…85975](https://explorer-studio.genlayer.com/tx/0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975) | **FINALIZED / SUCCESS**; persisted `DECIDED / REWORK_B`, live `recovery_permission` authorizes Worker B |
 | Rejected late Court `submit_evidence(3)` | [0xf4d939…a5b17](https://explorer-studio.genlayer.com/tx/0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17) | **FINALIZED / ERROR / Rollback**; `evidence window closed`; Court and V2 finalized state unchanged (not V2 revision) |
-| V2 first revision / first assessment | PENDING | PENDING |
+| V2 first `submit_revision(3)` | [0xde33a8…8d8a8c](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) | **FINALIZED / SUCCESS**, returned global attempt ID `2`; `get_attempt(2)` status `SUBMITTED`, case `3`, round `1`, and verified hashes |
+| V2 first `assess_revision(2)` | PENDING | PENDING |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
 | Rejected unauthorized/stale/finalize actions | PENDING | PENDING |
