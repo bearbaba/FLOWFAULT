@@ -129,6 +129,8 @@ class VerifiedRecovery(gl.Contract):
         r = self._recovery(a["case_id"])
         require(a["status"] == "SUBMITTED" and r["latest_attempt"] == attempt_id, "not current pending attempt")
         require(a["assessment_runs"] == 0, "assessment already started")
+        require(gl.message.sender_address.as_hex.lower() == a["actor"].lower(),
+                "revision signer only")
         return self._perform_assessment(a)
 
     @gl.public.write
