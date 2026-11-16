@@ -10,12 +10,14 @@ const client=createClient({chain:studionet});
 const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
 const read=async(method,args=[])=>{const raw=await client.readContract({address,functionName:method,args,transactionHashVariant:TransactionHashVariant.LATEST_FINAL});return typeof raw==='string'?JSON.parse(raw):raw;};
 const local=readFileSync('contracts/verified_recovery_v21.py','utf8');
+const archived=readFileSync('contracts/verified_recovery_v21_deployed.py','utf8');
 const deployed=await client.getContractCode(address);
 const normalize=s=>s.replace(/\r\n/g,'\n').replace(/\n+$/,'');
-if(normalize(local)!==normalize(deployed))throw Error('V2.1 deployment source differs beyond line endings. Refuse this deployment.');
+if(archived!==deployed)throw Error('Exact V2.1 deployed-source archive differs from the on-chain bytes');
+if(normalize(local)!==normalize(deployed))throw Error('V2.1 developer source differs beyond line endings. Refuse this deployment.');
 const stats=await read('stats');
 if(stats.version!=='2.1.0'||stats.max_attempts!==2||stats.max_assessment_runs!==3||stats.retry_policy!=='FORMAT_REVIEW_ONLY'||stats.court.toLowerCase()!==court.toLowerCase()||JSON.stringify(stats.criteria)!==JSON.stringify(['agreement','source','dependency']))throw Error('Unexpected deployment configuration');
-console.log(JSON.stringify({address,court,source_sha256:sha(local),deployed_sha256:sha(deployed),exact_source_match:local===deployed,line_endings_normalized_match:true,archive_pending_source_attestation:true,stats},null,2));
+console.log(JSON.stringify({address,court,source_sha256:sha(local),deployed_sha256:sha(deployed),exact_source_match:local===deployed,exact_archive_match:true,line_endings_normalized_match:true,stats},null,2));
 if(process.env.FLOWFAULT_VERIFY_CASE){
  const id=Number(process.env.FLOWFAULT_VERIFY_CASE);
  if(!Number.isSafeInteger(id)||id<=0)throw Error('Invalid case ID');
