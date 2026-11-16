@@ -8,7 +8,7 @@ const KEY='flowfault-verified-recovery-pending-v2';
 let config, policy=null, actor='', data=null, busy=false, linked=false;
 const message=s=>{$('message').textContent=s;};
 const hash=async text=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))),v=>v.toString(16).padStart(2,'0')).join('');
-function pending(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch{return null}}
+function pending(){try{const p=JSON.parse(localStorage.getItem(KEY)||'null');return p&&config?.recovery&&p.address?.toLowerCase()===config.recovery.toLowerCase()?p:null}catch{return null}}
 function controls(){
  const actions=recoveryActions(data?.c,data?.r,actor,data?.attempts?.at(-1),policy), blocked=busy||!!pending()||!linked;
  for(const k of ['submit','assess','retry','finalize']) $(k).disabled=blocked||!actions[k];
