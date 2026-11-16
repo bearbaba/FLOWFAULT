@@ -3,6 +3,9 @@ import {createClient} from 'genlayer-stable';
 import {studionet} from 'genlayer-stable/chains';
 const client=createClient({chain:studionet});
 const contracts=[["HandoffCourt","contracts/handoff_court.py",["open_case","submit_evidence","open_dispute","adjudicate","get_case","recovery_permission","totals"]],["RecoveryGate","contracts/recovery_gate.py",["submit_rework","receipt_for","get_receipt","stats"]]];
+contracts.push(["VerifiedRecovery", "contracts/verified_recovery.py", ["submit_revision", "assess_revision", "finalize_recovery", "get_recovery", "get_attempt", "stats"]]);
+contracts.push(["VerifiedRecoveryV21", "contracts/verified_recovery_v21.py", ["submit_revision", "assess_revision", "retry_format_review", "finalize_recovery", "get_recovery", "get_attempt", "stats"]]);
+contracts.push(["VerifiedRecoveryV22", "contracts/verified_recovery_v22.py", ["submit_revision", "assess_revision", "retry_format_review", "finalize_recovery", "get_recovery", "get_attempt", "stats"]]);
 for(const [name,path,methods] of contracts){
  try{
   const code=readFileSync(path,'utf8');

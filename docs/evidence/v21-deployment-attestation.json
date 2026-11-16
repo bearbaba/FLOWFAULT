@@ -1,0 +1,71 @@
+{
+  "title": "FLOWFAULT VerifiedRecovery V2.1 read-only Studionet deployment attestation",
+  "date": "2026-11-16",
+  "network": "GenLayer Studionet",
+  "chain_id": 61999,
+  "release": "2.1.0",
+  "deployment_address": "0xcbc76A74B062ec16740355170ffE1700932Db636",
+  "court_address": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+  "studio_url": "https://studio.genlayer.com/?import-contract=0xcbc76A74B062ec16740355170ffE1700932Db636",
+  "verification_source": "https://flowfault-jmxutcx6i-khaiptk1998-8088s-projects.vercel.app/api/verify-v21",
+  "preview_url": "https://flowfault-jmxutcx6i-khaiptk1998-8088s-projects.vercel.app/recovery.html",
+  "verification_finality": "LATEST_FINAL",
+  "deployed_source_sha256": "0262a6e3b6425bacd9abce60ed212b671c9dfd5ddaa2443863b29aa106b2d950",
+  "normalized_source_sha256": "c5e6583f6ebeabba593296b4c23a492420e52421a35f2587b433bddccc745ccc",
+  "committed_source_archive": "contracts/verified_recovery_v21_deployed.py",
+  "candidate_source": "contracts/verified_recovery_v21.py",
+  "candidate_github_blob_sha": "65addbb7d031ab45bccd6a47d6422efd1e573d9b",
+  "deployed_archive_github_blob_sha": "3e7260cca07950679fef58d14dcf29545b104910",
+  "stats": {
+    "attempts": 0,
+    "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+    "criteria": [
+      "agreement",
+      "source",
+      "dependency"
+    ],
+    "max_assessment_runs": 3,
+    "max_attempts": 2,
+    "retry_policy": "FORMAT_REVIEW_ONLY",
+    "version": "2.1.0"
+  },
+  "read_methods_and_write_abi": [
+    "assess_revision",
+    "finalize_recovery",
+    "get_attempt",
+    "get_recovery",
+    "retry_format_review",
+    "stats",
+    "submit_revision"
+  ],
+  "case_3_frozen_court": {
+    "id": 3,
+    "stage": "DECIDED",
+    "verdict": "REWORK_B",
+    "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+  },
+  "new_v21_case_3_state": {
+    "attempts": [],
+    "case_id": 3,
+    "latest_attempt": 0,
+    "state": "NOT_STARTED"
+  },
+  "checks": {
+    "onchain_exact_archive_match": true,
+    "candidate_match_except_crlf": true,
+    "v21_version": true,
+    "original_court_binding": true,
+    "two_artifact_limit": true,
+    "three_assessment_runs": true,
+    "technical_review_retry_only": true,
+    "required_abi": true,
+    "empty_new_recovery": true,
+    "frozen_case_rework_b": true
+  },
+  "caveats": [
+    "Studio deploy screenshot shows FINALIZED, but complete deployment transaction hash was not supplied. Contract code, ABI, constructor binding and finalized storage were independently read at the address.",
+    "V2.1 no accepted signed corrective transaction yet; no new PASS/RESOLVED claimed.",
+    "Original V2 Case 3 remains terminal REVIEW at old V2 address; new V2.1 storage is independent.",
+    "Vercel environment changed for milestone/verified-rework preview only; production not changed."
+  ]
+}

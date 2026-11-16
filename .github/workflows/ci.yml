@@ -14,6 +14,16 @@ jobs:
           node-version: '22'
       - run: npm install --no-audit --no-fund
       - run: npm test
+      - run: npm run check:release:v21
+      - run: npm run check:release:v22
+      - name: Verify live signed V2.2 PASS and finalized RESOLVED (read-only)
+        timeout-minutes: 6
+        env:
+          FLOWFAULT_COURT_ADDRESS: '0x02A5476d786f55a215B33d77bdb071acB787182b'
+          FLOWFAULT_VERIFIED_RECOVERY_ADDRESS: '0x6a9E026adfD607f087626B06e293e7b277AD3966'
+          FLOWFAULT_VERIFY_CASE: '3'
+        run: npm run verify:recovery:v22
+      - run: python -m unittest discover -s tests -p 'test_*.py' -v
       - run: npm run build
       - name: Compile contract syntax (not GenVM execution)
         run: python -m py_compile contracts/*.py

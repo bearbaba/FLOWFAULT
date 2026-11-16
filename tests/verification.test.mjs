@@ -5,7 +5,12 @@ const sha=(c)=>c.repeat(64);
 test('JSON parsing and finality never accept FINALIZED alone',()=>{
  assert.deepEqual(parseValue('{"ok":true}'),{ok:true});
  assert.equal(parseValue('BAD_OUTPUT'),'BAD_OUTPUT');
- assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS'}),'success');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS'}),'pending'); // unknown consensus is not accepted evidence
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS',consensus:'MajorityAgree'}),'success');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS',consensus:'Idle'}),'pending');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS',consensus:'NoMajority'}),'error');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS',consensus:'MajorityDisagree'}),'error');
+ assert.equal(classifyTx({status:'FINALIZED',execution:'SUCCESS',consensus:'MajorityTimeout'}),'error');
  assert.equal(classifyTx({status:'FINALIZED',execution:'FINISHED_WITH_ERROR'}),'error');
  assert.equal(classifyTx({status:'FINALIZED'}),'pending');
  assert.equal(classifyTx({status:'ACCEPTED',execution:'SUCCESS'}),'pending');

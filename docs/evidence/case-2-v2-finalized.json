@@ -1,0 +1,174 @@
+{
+  "title": "FLOWFAULT V2 Case #2 finalized evidence bundle",
+  "network": "GenLayer Studionet",
+  "chain_id": 61999,
+  "verification_method": "GenLayer LATEST_FINAL read-only API; all three hashes checked via finalized transaction-status endpoint",
+  "disclaimer": "Evidence-scoped historical Court Case #2 V2 recovery only. This is not a new post-upgrade Court case or a demonstration of negative/A-dependency test paths. Data copied from finalized public reads on 2026-11-16.",
+  "contracts": {
+    "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+    "v2": "0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71"
+  },
+  "transaction_evidence": [
+    {
+      "method": "submit_revision",
+      "hash": "0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4"
+    },
+    {
+      "method": "assess_revision",
+      "hash": "0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583"
+    },
+    {
+      "method": "finalize_recovery",
+      "hash": "0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e"
+    }
+  ],
+  "finalized_public_readbacks": {
+    "case": {
+      "a_output": "{\"approvedIds\":[\"INV1\",\"INV3\"],\"approvedTotal\":20}",
+      "a_sha256": "4aceca17fe75cb8d90bb70e8cc2cfe0271e85f43f289bb7070edaa6dd01acc7f",
+      "b_output": "{\"approvedIds\":[\"INV1\",\"INV3\"],\"approvedTotal\":20}",
+      "b_sha256": "4aceca17fe75cb8d90bb70e8cc2cfe0271e85f43f289bb7070edaa6dd01acc7f",
+      "dispute": "Worker B was required to independently submit a report containing reportedTotal matching Worker A's approvedTotal. Instead, Worker B submitted a duplicate of Worker A's extraction output, without the required reportedTotal field or independent summary. Determine which worker violated the locked task agreement and whether rework is required.",
+      "id": 2,
+      "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+      "source_data": "[{\"id\":\"INV1\",\"amount\":12,\"approved\":true},{\"id\":\"INV2\",\"amount\":6,\"approved\":false},{\"id\":\"INV3\",\"amount\":8,\"approved\":true}]",
+      "source_sha256": "f03a05441ce0c70c1fd1a98f0b5d823c0cbdd3b9e6128caaa1cf7417a309c27b",
+      "stage": "DECIDED",
+      "task_spec": "Process synthetic invoice entries. Worker A must extract the IDs of approved entries and produce the exact integer approvedTotal as JSON. Worker B must independently issue a summary with reportedTotal matching A approvedTotal exactly, without inventing amounts or changing attribution. A failure in only B output requires REWORK_B.",
+      "verdict": "REWORK_B",
+      "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+      "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+    },
+    "recovery": {
+      "attempts": [
+        1
+      ],
+      "case_id": 2,
+      "latest_attempt": 1,
+      "resolution": {
+        "attempt_id": 1,
+        "revision_sha256": "0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4",
+        "scope": "FROZEN_EVIDENCE_ONLY",
+        "snapshot_sha256": "8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787"
+      },
+      "state": "RESOLVED"
+    },
+    "attempt": {
+      "actor": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af",
+      "assessment": {
+        "checks": [
+          {
+            "criterion": "agreement",
+            "reason": "The revision supplies B's summary with reportedTotal 20, exactly matching A, and accurately attributes the approved amounts.",
+            "references": [
+              {
+                "field": "revision",
+                "quote": "\"reportedTotal\":20"
+              },
+              {
+                "field": "agreement",
+                "quote": "Worker B must independently issue a summary with reportedTotal matching A approvedTotal exactly, without inventing amounts or changing attribution."
+              }
+            ],
+            "result": "PASS"
+          },
+          {
+            "criterion": "source",
+            "reason": "The source confirms INV1 and INV3 are approved for 12 and 8, totaling 20; INV2 is unapproved for 6. The summary invents no amounts or attribution.",
+            "references": [
+              {
+                "field": "revision",
+                "quote": "approved invoices INV1 (12) and INV3 (8) total 20; INV2 (6) is not approved."
+              },
+              {
+                "field": "source",
+                "quote": "[{\"id\":\"INV1\",\"amount\":12,\"approved\":true},{\"id\":\"INV2\",\"amount\":6,\"approved\":false},{\"id\":\"INV3\",\"amount\":8,\"approved\":true}]"
+              }
+            ],
+            "result": "PASS"
+          },
+          {
+            "criterion": "dependency",
+            "reason": "B's reportedTotal and stated approved invoices agree with unchanged A evidence and the agreement's exact-match requirement.",
+            "references": [
+              {
+                "field": "revision",
+                "quote": "{\"reportedTotal\":20,\"summary\":\"Independent check of source: approved invoices INV1 (12) and INV3 (8) total 20; INV2 (6) is not approved. This matches Worker A approvedTotal 20.\"}"
+              },
+              {
+                "field": "original_a",
+                "quote": "{\"approvedIds\":[\"INV1\",\"INV3\"],\"approvedTotal\":20}"
+              },
+              {
+                "field": "agreement",
+                "quote": "reportedTotal matching A approvedTotal exactly"
+              }
+            ],
+            "result": "PASS"
+          }
+        ],
+        "reason": "Derived from all three frozen criteria.",
+        "verdict": "PASS"
+      },
+      "case_id": 2,
+      "id": 1,
+      "new_output": "{\"reportedTotal\":20,\"summary\":\"Independent check of source: approved invoices INV1 (12) and INV3 (8) total 20; INV2 (6) is not approved. This matches Worker A approvedTotal 20.\"}",
+      "new_sha256": "0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4",
+      "role": "B",
+      "round": 1,
+      "snapshot": {
+        "a_output": "{\"approvedIds\":[\"INV1\",\"INV3\"],\"approvedTotal\":20}",
+        "a_sha256": "4aceca17fe75cb8d90bb70e8cc2cfe0271e85f43f289bb7070edaa6dd01acc7f",
+        "b_output": "{\"approvedIds\":[\"INV1\",\"INV3\"],\"approvedTotal\":20}",
+        "b_sha256": "4aceca17fe75cb8d90bb70e8cc2cfe0271e85f43f289bb7070edaa6dd01acc7f",
+        "dispute": "Worker B was required to independently submit a report containing reportedTotal matching Worker A's approvedTotal. Instead, Worker B submitted a duplicate of Worker A's extraction output, without the required reportedTotal field or independent summary. Determine which worker violated the locked task agreement and whether rework is required.",
+        "id": 2,
+        "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+        "source_data": "[{\"id\":\"INV1\",\"amount\":12,\"approved\":true},{\"id\":\"INV2\",\"amount\":6,\"approved\":false},{\"id\":\"INV3\",\"amount\":8,\"approved\":true}]",
+        "source_sha256": "f03a05441ce0c70c1fd1a98f0b5d823c0cbdd3b9e6128caaa1cf7417a309c27b",
+        "stage": "DECIDED",
+        "task_spec": "Process synthetic invoice entries. Worker A must extract the IDs of approved entries and produce the exact integer approvedTotal as JSON. Worker B must independently issue a summary with reportedTotal matching A approvedTotal exactly, without inventing amounts or changing attribution. A failure in only B output requires REWORK_B.",
+        "verdict": "REWORK_B",
+        "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+        "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+      },
+      "snapshot_sha256": "8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787",
+      "status": "PASS"
+    },
+    "stats": {
+      "attempts": 1,
+      "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+      "criteria": [
+        "agreement",
+        "source",
+        "dependency"
+      ],
+      "max_attempts": 2,
+      "version": "2.0.0"
+    }
+  },
+  "validation": {
+    "recovery_state_is_resolved": true,
+    "attempt_is_current_and_pass": true,
+    "three_criteria_pass": true,
+    "revision_digest_matches_resolution": true,
+    "court_snapshot_digest_matches_resolution": true,
+    "court_original_verdict_unchanged": true
+  },
+  "next_steps_not_yet_verified": [
+    "New post-upgrade Court case",
+    "Signed FAIL/REVIEW state and second attempt",
+    "Rejected unauthorized/stale/duplicate attempts",
+    "REWORK_A leaves downstream B review required",
+    "Browser evidence export plus short new demo"
+  ]
+}

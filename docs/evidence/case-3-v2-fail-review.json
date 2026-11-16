@@ -1,0 +1,279 @@
+{
+  "title": "FLOWFAULT VerifiedRecovery V2 — fresh signed Court Case #3 evidence",
+  "network": "GenLayer Studionet",
+  "chain_id": 61999,
+  "readback_finality": "LATEST_FINAL",
+  "captured_date": "2026-11-16",
+  "disclaimer": "Case #3 has NOT been resolved. Accepted AI assessment of corrected round 2 returned REVIEW due to invalid assessment format/references. No third submission, reassessment or finalization is authorized by current immutable V2; Case #2 separate RESOLVED evidence is not included here. Explorer consensus is grounded in user-provided transaction details; the transaction status read-only API exposes status and execution only.",
+  "contracts": {
+    "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+    "verified_recovery_v2": "0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71"
+  },
+  "transaction_evidence": [
+    {
+      "label": "court_open_case",
+      "hash": "0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f"
+    },
+    {
+      "label": "court_worker_a_evidence",
+      "hash": "0xe374185b455195f0676f686cd1ddfb5c886fe94dc7765d5ef29983d7f8a7c1ba",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xe374185b455195f0676f686cd1ddfb5c886fe94dc7765d5ef29983d7f8a7c1ba"
+    },
+    {
+      "label": "court_worker_b_evidence",
+      "hash": "0x154b4036445940ecba3f04c0bfb985f27e2a97c69ed68541973326ff041a6d13",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x154b4036445940ecba3f04c0bfb985f27e2a97c69ed68541973326ff041a6d13"
+    },
+    {
+      "label": "court_owner_open_dispute",
+      "hash": "0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc"
+    },
+    {
+      "label": "court_adjudicate",
+      "hash": "0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975"
+    },
+    {
+      "label": "late_court_evidence_rollback",
+      "hash": "0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17",
+      "status": "FINALIZED",
+      "execution": "ERROR",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17"
+    },
+    {
+      "label": "v2_submit_round1_attempt2",
+      "hash": "0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c"
+    },
+    {
+      "label": "v2_assess_attempt2_undetermined",
+      "hash": "0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Undetermined",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e"
+    },
+    {
+      "label": "v2_assess_attempt2_accepted_fail",
+      "hash": "0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d"
+    },
+    {
+      "label": "v2_finalize_failed_guard_rollback",
+      "hash": "0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f",
+      "status": "FINALIZED",
+      "execution": "ERROR",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f"
+    },
+    {
+      "label": "v2_submit_round2_attempt3",
+      "hash": "0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4"
+    },
+    {
+      "label": "v2_assess_attempt3_accepted_review",
+      "hash": "0x785906609fb3d0647ccd59ed1297b07aaedb88989da3155e532d1e5d841a157f",
+      "status": "FINALIZED",
+      "execution": "SUCCESS",
+      "consensus": "Accepted",
+      "explorer": "https://explorer-studio.genlayer.com/tx/0x785906609fb3d0647ccd59ed1297b07aaedb88989da3155e532d1e5d841a157f"
+    }
+  ],
+  "finalized_public_readbacks": {
+    "court": {
+      "a_output": "{\"approvedIds\":[\"INV4\",\"INV6\"],\"approvedTotal\":50}",
+      "a_sha256": "9b8bb2c7e5abcfef535369bad0d183b72d1f4b2df0a3ad66a0e63b297ddc44d7",
+      "b_output": "{\"reportedTotal\":55,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 55; INV5 (14) was unapproved.\"}",
+      "b_sha256": "a9f13785405e4fc70d9e577f5b2acbbe103fb6b56563d5ad3b1631b6467341d4",
+      "dispute": "Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B reports 55 despite those signed source amounts summing to 50. Determine whether Worker B alone violated the locked agreement using only frozen evidence.",
+      "id": 3,
+      "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+      "source_data": "[{\"id\":\"INV4\",\"amount\":31,\"approved\":true},{\"id\":\"INV5\",\"amount\":14,\"approved\":false},{\"id\":\"INV6\",\"amount\":19,\"approved\":true}]",
+      "source_sha256": "96e2a5374e92c68d6f59e91f02192cedd40536b1282af289dcbf616b116f2094",
+      "stage": "DECIDED",
+      "task_spec": "Process synthetic invoices. Worker A must output JSON containing the approvedIds and exact integer approvedTotal. Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts. A correct Worker A output with an inconsistent Worker B report requires REWORK_B.",
+      "verdict": "REWORK_B",
+      "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+      "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+    },
+    "recovery": {
+      "attempts": [
+        2,
+        3
+      ],
+      "case_id": 3,
+      "latest_attempt": 3,
+      "state": "REVIEW"
+    },
+    "attempt_fail": {
+      "actor": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af",
+      "assessment": {
+        "checks": [
+          {
+            "criterion": "agreement",
+            "reason": "Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts. The revision reports total 52, which does not match Worker A's approvedTotal of 50, and the summary fails to distinguish approved and unapproved entries.",
+            "references": [
+              {
+                "field": "agreement",
+                "quote": "Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts."
+              },
+              {
+                "field": "revision",
+                "quote": "{\"reportedTotal\":52,\"summary\":\"Corrected approved total 52 from INV4 and INV6.\"}"
+              }
+            ],
+            "result": "FAIL"
+          },
+          {
+            "criterion": "source",
+            "reason": "Worker B's revision reports a total of 52, but the frozen source shows approved invoices INV4 (31) and INV6 (19) which sum to 50. The reported total of 52 is not supported by the source data and invents an incorrect amount.",
+            "references": [
+              {
+                "field": "source",
+                "quote": "[{\"id\":\"INV4\",\"amount\":31,\"approved\":true},{\"id\":\"INV5\",\"amount\":14,\"approved\":false},{\"id\":\"INV6\",\"amount\":19,\"approved\":true}]"
+              },
+              {
+                "field": "revision",
+                "quote": "{\"reportedTotal\":52,\"summary\":\"Corrected approved total 52 from INV4 and INV6.\"}"
+              }
+            ],
+            "result": "FAIL"
+          },
+          {
+            "criterion": "dependency",
+            "reason": "Worker B is required to report a total equal to Worker A's approvedTotal (50). Worker B's revision reports 52, which is inconsistent with the unchanged Worker A evidence output value of 50.",
+            "references": [
+              {
+                "field": "original_a",
+                "quote": "{\"approvedIds\":[\"INV4\",\"INV6\"],\"approvedTotal\":50}"
+              },
+              {
+                "field": "revision",
+                "quote": "{\"reportedTotal\":52,\"summary\":\"Corrected approved total 52 from INV4 and INV6.\"}"
+              },
+              {
+                "field": "agreement",
+                "quote": "Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal"
+              }
+            ],
+            "result": "FAIL"
+          }
+        ],
+        "reason": "Derived from all three frozen criteria.",
+        "verdict": "FAIL"
+      },
+      "case_id": 3,
+      "id": 2,
+      "new_output": "{\"reportedTotal\":52,\"summary\":\"Corrected approved total 52 from INV4 and INV6.\"}",
+      "new_sha256": "4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a",
+      "role": "B",
+      "round": 1,
+      "snapshot": {
+        "a_output": "{\"approvedIds\":[\"INV4\",\"INV6\"],\"approvedTotal\":50}",
+        "a_sha256": "9b8bb2c7e5abcfef535369bad0d183b72d1f4b2df0a3ad66a0e63b297ddc44d7",
+        "b_output": "{\"reportedTotal\":55,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 55; INV5 (14) was unapproved.\"}",
+        "b_sha256": "a9f13785405e4fc70d9e577f5b2acbbe103fb6b56563d5ad3b1631b6467341d4",
+        "dispute": "Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B reports 55 despite those signed source amounts summing to 50. Determine whether Worker B alone violated the locked agreement using only frozen evidence.",
+        "id": 3,
+        "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+        "source_data": "[{\"id\":\"INV4\",\"amount\":31,\"approved\":true},{\"id\":\"INV5\",\"amount\":14,\"approved\":false},{\"id\":\"INV6\",\"amount\":19,\"approved\":true}]",
+        "source_sha256": "96e2a5374e92c68d6f59e91f02192cedd40536b1282af289dcbf616b116f2094",
+        "stage": "DECIDED",
+        "task_spec": "Process synthetic invoices. Worker A must output JSON containing the approvedIds and exact integer approvedTotal. Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts. A correct Worker A output with an inconsistent Worker B report requires REWORK_B.",
+        "verdict": "REWORK_B",
+        "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+        "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+      },
+      "snapshot_sha256": "ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7",
+      "status": "FAIL"
+    },
+    "attempt_review": {
+      "actor": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af",
+      "assessment": {
+        "checks": [],
+        "reason": "Assessment format or evidence references could not be verified.",
+        "verdict": "REVIEW"
+      },
+      "case_id": 3,
+      "id": 3,
+      "new_output": "{\"reportedTotal\":50,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50.\"}",
+      "new_sha256": "074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367",
+      "role": "B",
+      "round": 2,
+      "snapshot": {
+        "a_output": "{\"approvedIds\":[\"INV4\",\"INV6\"],\"approvedTotal\":50}",
+        "a_sha256": "9b8bb2c7e5abcfef535369bad0d183b72d1f4b2df0a3ad66a0e63b297ddc44d7",
+        "b_output": "{\"reportedTotal\":55,\"summary\":\"Approved invoices INV4 (31) and INV6 (19) total 55; INV5 (14) was unapproved.\"}",
+        "b_sha256": "a9f13785405e4fc70d9e577f5b2acbbe103fb6b56563d5ad3b1631b6467341d4",
+        "dispute": "Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B reports 55 despite those signed source amounts summing to 50. Determine whether Worker B alone violated the locked agreement using only frozen evidence.",
+        "id": 3,
+        "owner": "0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb",
+        "source_data": "[{\"id\":\"INV4\",\"amount\":31,\"approved\":true},{\"id\":\"INV5\",\"amount\":14,\"approved\":false},{\"id\":\"INV6\",\"amount\":19,\"approved\":true}]",
+        "source_sha256": "96e2a5374e92c68d6f59e91f02192cedd40536b1282af289dcbf616b116f2094",
+        "stage": "DECIDED",
+        "task_spec": "Process synthetic invoices. Worker A must output JSON containing the approvedIds and exact integer approvedTotal. Worker B must independently output JSON containing reportedTotal equal to Worker A's approvedTotal and a summary distinguishing approved and unapproved entries without inventing any amounts. A correct Worker A output with an inconsistent Worker B report requires REWORK_B.",
+        "verdict": "REWORK_B",
+        "worker_a": "0x60bfdf6315294c7856acdc0b80d7bd40217debff",
+        "worker_b": "0xd6b8a3a5eb329410d9504784812b8569afa8c2af"
+      },
+      "snapshot_sha256": "ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7",
+      "status": "REVIEW"
+    },
+    "stats": {
+      "attempts": 3,
+      "court": "0x02A5476d786f55a215B33d77bdb071acB787182b",
+      "criteria": [
+        "agreement",
+        "source",
+        "dependency"
+      ],
+      "max_attempts": 2,
+      "version": "2.0.0"
+    }
+  },
+  "verification": {
+    "court_decided_rework_b": true,
+    "first_attempt_fail": true,
+    "fail_has_all_three_criterion_fail": true,
+    "second_attempt_review": true,
+    "review_is_format_reference_fallback": true,
+    "both_rounds_used": true,
+    "recovery_not_resolved": true,
+    "same_frozen_snapshot": true,
+    "old_attempt_preserved": true
+  },
+  "further_acceptance_not_verified": [
+    "Case #3 positive PASS or RESOLVED (impossible under current two-attempt contract state)",
+    "Fresh post-upgrade positive case",
+    "REWORK_A dependency flow signed example",
+    "Browser export walkthrough"
+  ]
+}
