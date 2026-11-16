@@ -175,6 +175,15 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 - **Optional extra negative guard:** before that second revision, a deliberate `finalize_recovery(3,2)` may be submitted to show actual rollback on `verified PASS required`. This rejected transaction is **not yet observed**. Because the source guard requires persisted PASS, an attempted finalize cannot validly resolve the existing FAIL; record actual transaction status and state readback rather than inferring.
 - **Do not finalize now.** Only a later accepted, persisted PASS on the current second attempt can authorize actual finalization.
 
+### Case #3 rejected FAIL finalization — 2026-11-16 10:53 ICT
+
+- **Signed negative-guard transaction:** [`0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f`](https://explorer-studio.genlayer.com/tx/0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f). Authorized Worker B called `finalize_recovery(case_id=3,attempt_id=2)` on VerifiedRecovery V2, Normal mode, Accepted consensus, 0 rotations and 5 initial validators.
+- **Correct guard result:** transaction `FINALIZED` but GenVM execution `ERROR / Rollback`, exact error `verified PASS required`. It is **not** a successful finalization.
+- Independent `LATEST_FINAL get_recovery(3)` after rollback: `{"attempts":[2],"case_id":3,"latest_attempt":2,"state":"FAIL"}`, **no** `resolution`.
+- Independent `LATEST_FINAL get_attempt(2)` after rollback: `status=FAIL`, stored `agreement/source/dependency` all FAIL, `new_sha256=4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`, original snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7`.
+- Court `get_case(3)` remains `DECIDED / REWORK_B`. **Security finding supported by on-chain evidence:** a FAIL assessment cannot be used to finalize a recovery; failed finalize did not consume the remaining correction slot.
+- **Next:** Worker B calls the *different*, second `submit_revision(case_id=3,new_output,new_sha256)` on VerifiedRecovery V2. Exact next output shown below: 153 UTF-8 bytes, independently recomputed `SHA-256=074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. The resulting global attempt ID, AI assessment and eventual resolution are **not yet known**.
+
 ## Evidence gate — do not claim until observed
 
 | Step | New transaction hash | Finalized result |
@@ -190,6 +199,7 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | V2 accepted retry of `assess_revision(2)` | [0xcf25c5…98f8d](https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d) | **FINALIZED / SUCCESS / Accepted**, returned `FAIL`; latest-final `get_attempt(2).status=FAIL`, 3/3 checks FAIL with evidence references, and `get_recovery(3).state=FAIL` |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
-| Rejected unauthorized/stale/finalize actions | PENDING | PENDING |
+| V2 rejected `finalize_recovery(3,2)` after FAIL | [0x086b96…d4dc4f](https://explorer-studio.genlayer.com/tx/0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f) | **FINALIZED / Accepted / ERROR / Rollback**, `verified PASS required`; latest-final recovery and attempt both remain `FAIL`, no resolution |
+| Other rejected authorization / stale / duplicate actions | PENDING | PENDING |
 
 Additional `REWORK_A` dependency case must be demonstrated separately; this fixture only tests the B path. Do not change the deployed code or retroactively rewrite a record because AI reaches an unexpected but legitimate result.
