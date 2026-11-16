@@ -39,10 +39,17 @@ const source=readFileSync('contracts/verified_recovery_v22.py','utf8');
 const archive=readFileSync('contracts/verified_recovery_v22_deployed.py','utf8');
 require(deployed===archive,'On-chain contract source differs from exact deployment archive');
 require(normalize(deployed)===normalize(source),'Deployed and developer sources differ beyond line endings');
-require(stats.version===expectedVersion&&stats.citation_mode==='DETERMINISTIC_REFERENCE_IDS'&&
- stats.max_attempts===2&&stats.max_assessment_runs===3&&stats.retry_policy==='FORMAT_REVIEW_ONLY'&&
- JSON.stringify(stats.criteria)===JSON.stringify(['agreement','source','dependency'])&&same(stats.court,court),
- 'Unexpected contract version, citation mode, role policy or Court binding');
+const policyChecks={
+ version:stats?.version===expectedVersion,
+ citation:stats?.citation_mode==='DETERMINISTIC_REFERENCE_IDS',
+ max_attempts:stats?.max_attempts===2,
+ max_assessment_runs:stats?.max_assessment_runs===3,
+ retry:stats?.retry_policy==='FORMAT_REVIEW_ONLY',
+ criteria:JSON.stringify(stats?.criteria)===JSON.stringify(['agreement','source','dependency']),
+ court:same(stats?.court,court)
+};
+require(Object.values(policyChecks).every(Boolean),
+ 'Unexpected deployed policy: '+JSON.stringify({policyChecks,observed:stats}));
 require(original.id===caseId&&original.stage==='DECIDED'&&['REWORK_A','REWORK_B'].includes(original.verdict),
  'Original Court case is not a frozen single-worker decision');
 require(recovery.state==='RESOLVED'&&Array.isArray(recovery.attempts)&&recovery.attempts.length>0&&
