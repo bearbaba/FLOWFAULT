@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — live Studionet acceptance ledger
 
-**Status: V2 Case #2 signed end-to-end recovery VERIFIED; Milestone acceptance still PARTIAL.** Signed submission, AI consensus assessment, and explicit finalization are all `FINALIZED / SUCCESS`. The persisted V2 state is `RESOLVED`, with the revision/snapshot hashes and exact latest attempt recorded. A newly opened post-upgrade case, negative-path signed evidence, A→B dependency demonstration, and final demo are not yet established. Scope is frozen evidence only; no claim of real-world certification.
+**Status: V2 Case #2 end-to-end PASS → RESOLVED VERIFIED; fresh signed Court Case #3 REWORK_B → V2 FAIL (round 1) → REVIEW (round 2) VERIFIED; Milestone acceptance still PARTIAL.** Case #3 is **NOT RESOLVED**: the corrected second revision reached an Accepted consensus REVIEW fallback with no valid evidence references, exhausting both revisions. A-dependency signed acceptance and final demo remain outstanding. Both cases operate only over frozen evidence, not off-chain execution certification.
 
 ## Immutable baseline and deployment
 
@@ -101,13 +101,23 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 
 **Validated outcome:** a complete live, signed, evidence-scoped V2 `REWORK_B` recovery on a pre-existing Court case. This does **not** establish the new-case milestone, A→B or negative-path tests yet.
 
-## Milestone completion criteria (not yet observed)
+## Fresh post-upgrade Case #3 — signed FAIL then REVIEW (verified 16 Nov 2026)
 
-- A **new post-upgrade Court case**, with signed original artifacts and finalized dispute verdict, enters V2.
-- A real FAIL or REVIEW case does **not** resolve; if a later distinct revision passes, only the latest passing revision can resolve.
+- Original HandoffCourt Case #3 was freshly created and signed by separate Owner, Worker A, Worker B. Owner dispute and AI `adjudicate(3)` transaction [`0x5ee0c1…85975`](https://explorer-studio.genlayer.com/tx/0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975) finalized `DECIDED / REWORK_B`.
+- V2 Worker B round 1: [`submit_revision(3)`](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) created global attempt `2` with incorrect `reportedTotal=52`. One [Undetermined assessment transaction](https://explorer-studio.genlayer.com/tx/0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e) proposed FAIL without persisting it; the [Accepted retry](https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d) persisted `FAIL` across agreement/source/dependency.
+- A signed [attempt to finalize the FAIL](https://explorer-studio.genlayer.com/tx/0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f) correctly rolled back with `verified PASS required`; the state remained FAIL with no resolution.
+- V2 Worker B round 2: [`submit_revision(3)`](https://explorer-studio.genlayer.com/tx/0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4) created global attempt `3`, correcting the total to `50`. Its [Accepted `assess_revision(3)`](https://explorer-studio.genlayer.com/tx/0x785906609fb3d0647ccd59ed1297b07aaedb88989da3155e532d1e5d841a157f) returned and persisted `REVIEW` with `checks=[]`, reason `Assessment format or evidence references could not be verified.`
+- Latest-final `get_recovery(3)={"attempts":[2,3],"case_id":3,"latest_attempt":3,"state":"REVIEW"}` (no `resolution`). Latest-final `get_attempt(2).status=FAIL`, `get_attempt(3).status=REVIEW`; source snapshot digests agree. **There is no PASS for Case #3.**
+- The deployed V2 code allows `assess_revision` only when the current attempt is `SUBMITTED` and at most two revisions per case. Thus Case #3 cannot be reassessed, revised again or finalized under this deployed contract. This is a conservative but terminal limitation, not successful recovery.
+- [Complete chronological signed ledger](VERIFIED_RECOVERY_NEXT_CASE.md) · [machine-readable latest-final Case #3 evidence](evidence/case-3-v2-fail-review.json). Historic Case #2 [independent RESOLVED evidence](evidence/case-2-v2-finalized.json) remains a distinct demonstration.
+
+## Milestone completion criteria — verified versus remaining
+
+- **Verified:** a new post-upgrade Court Case #3 with signed original artifacts and finalized dispute verdict entered V2.
+- **Verified:** persisted FAIL did not resolve and signed FAIL finalization rolled back; later corrected second revision resulted in terminal REVIEW, not PASS. Separate historical Case #2 demonstrates accepted PASS and explicit RESOLVED. A new post-upgrade FAIL → PASS → RESOLVED case is **not** proven.
 - An `REWORK_A` case must stop at `UPSTREAM_VERIFIED_B_REVIEW_REQUIRED`, never automatically close the dependent B workflow.
 - Negative checks are signed or reproducibly reverted: wrong-wallet submission, hash mismatch, duplicate/stale attempt, and attempt cap.
 - All statuses are taken from finalized contract state, not predicted AI output or simulation.
-- Record the new-case IDs, transaction URLs, finalized snapshots, commit SHA, deployment/source checks, and a short demo before moving PR out of Draft or submitting the Milestone.
+- **Partly verified:** new-case IDs, transaction URLs, latest-final snapshots, commit SHA, deployed source checks and machine-readable evidence archived. Browser walkthrough/demo remains to be validated before claiming final milestone acceptance.
 
 This ledger records only verified transactions and finalized readbacks. Remaining tests are explicitly flagged as unverified; no fabricated transaction or consensus result is included.
