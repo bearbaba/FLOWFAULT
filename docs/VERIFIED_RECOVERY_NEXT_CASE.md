@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — fresh-case signed negative-to-positive acceptance plan
 
-**IN PROGRESS — signed fresh Case #3 Court workflow finalized `REWORK_B`; first VerifiedRecovery V2 revision was successfully signed and recorded as global attempt #2 (Case #3 round 1). AI assessment and retry remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
+**IN PROGRESS — signed fresh Case #3 Court workflow finalized `REWORK_B`; first VerifiedRecovery V2 revision recorded as global attempt #2 (Case #3 round 1). First `assess_revision(2)` execution returned FAIL on all criteria, but consensus was UNDETERMINED after 3 rotations, and latest-final attempt/recovery remain SUBMITTED: the FAIL has NOT been persisted.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
 
 ## Network and signers
 
@@ -155,6 +155,14 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 - **Important:** global attempt `2` is **round 1 of Case #3**, not the second revision for this case. The contract supports a maximum of 2 attempts **per case**. Existing global attempt `1` belongs to historical Case #2.
 - **Next real signed action:** `assess_revision(attempt_id=2)` on VerifiedRecovery V2. The report value 52 conflicts with the locked approved total 50, but actual AI consensus remains **pending**. Do not assert FAIL or REVIEW until persisted final readback confirms it; do not finalize.
 
+### Case #3 first AI assessment — UNDETERMINED / not persisted, 2026-11-16 10:39 ICT
+
+- Transaction: [`0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e`](https://explorer-studio.genlayer.com/tx/0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e) on VerifiedRecovery V2, authorized Worker B, method `assess_revision(2)`. Explorer reports `FINALIZED`, **`Consensus Result: Undetermined`**, 3 rotations, 5 initial validators. GenVM leader execution reports `SUCCESS` and returns `"FAIL"`, with proposed assessment `agreement=FAIL`, `source=FAIL`, `dependency=FAIL`, citing the frozen agreement, source and A output.
+- **Authoritative independent readback, `LATEST_FINAL`:** `get_attempt(2).status=SUBMITTED`, `get_attempt(2).assessment={}`, `get_recovery(3)={"attempts":[2],"case_id":3,"latest_attempt":2,"state":"SUBMITTED"}`. There is **no persisted FAIL**, no resolution, no second attempt yet. Court `get_case(3)` still `DECIDED / REWORK_B`.
+- **Critical distinction:** `FINALIZED` transaction status and successful leader execution do **not** prove that an `Undetermined` consensus result was committed; GenLayer's equivalence principle docs explicitly state an undetermined transaction does not modify contract state: https://docs.genlayer.com/developers/intelligent-contracts/equivalence-principle .
+- **Correct next action:** retry `assess_revision(attempt_id=2)` as a **new transaction** against VerifiedRecovery V2, Normal/Full Consensus, without resubmitting the revision. Check both consensus outcome and `LATEST_FINAL` state. Proceed to round 2 only if accepted consensus actually persists `FAIL` or `REVIEW`; do not call `finalize_recovery` or claim the negative-path test succeeded based only on the leader return.
+- **Engineering risk:** the deployed assessment consensus asks validators to agree on all three reason texts and literal references, which may increase disagreement across AI executions. If retries remain Undetermined, investigate the equivalence principle and prepare a safer updated contract/deployment; **do not silently modify deployed-source archive or misrepresent that the current deployed contract was fixed**.
+
 ## Evidence gate — do not claim until observed
 
 | Step | New transaction hash | Finalized result |
@@ -166,7 +174,7 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | Court AI `adjudicate(3)` | [0x5ee0c1…85975](https://explorer-studio.genlayer.com/tx/0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975) | **FINALIZED / SUCCESS**; persisted `DECIDED / REWORK_B`, live `recovery_permission` authorizes Worker B |
 | Rejected late Court `submit_evidence(3)` | [0xf4d939…a5b17](https://explorer-studio.genlayer.com/tx/0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17) | **FINALIZED / ERROR / Rollback**; `evidence window closed`; Court and V2 finalized state unchanged (not V2 revision) |
 | V2 first `submit_revision(3)` | [0xde33a8…8d8a8c](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) | **FINALIZED / SUCCESS**, returned global attempt ID `2`; `get_attempt(2)` status `SUBMITTED`, case `3`, round `1`, and verified hashes |
-| V2 first `assess_revision(2)` | PENDING | PENDING |
+| V2 first `assess_revision(2)` | [0xa5b5ab…686a3e](https://explorer-studio.genlayer.com/tx/0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e) | **FINALIZED / consensus UNDETERMINED**, leader GenVM returned `FAIL` with 3/3 checks FAIL, but `LATEST_FINAL get_attempt(2)` is still `SUBMITTED`, `assessment={}`, and `get_recovery(3).state=SUBMITTED`; **no accepted/persisted FAIL** |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
 | Rejected unauthorized/stale/finalize actions | PENDING | PENDING |
