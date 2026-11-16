@@ -1,6 +1,6 @@
 # FLOWFAULT
 
-> **Verified recovery V2:** A separate [Studionet contract](https://studio.genlayer.com/?import-contract=0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71) and `/recovery.html` add evidence-based `PASS / FAIL / REVIEW`, bounded revisions, and explicit recovery resolution. [Implementation and deployment verification](docs/VERIFIED_RECOVERY.md) · [Finalized readbacks and signed test instructions](docs/VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md) · [V2 PR #1](https://github.com/bearbaba/FLOWFAULT/pull/1). **Live signed V2 Case #2 recovery is now verified end-to-end:** submit → AI consensus PASS (three criteria) → explicit `RESOLVED`, with all three transaction hashes and immutable readbacks in the acceptance ledger. The historic video demo remains V1; fresh-case and negative-path V2 evidence is still pending.
+> **VerifiedRecovery V2 live, V2.1 release candidate not yet deployed.** The [V2 Studionet contract](https://studio.genlayer.com/?import-contract=0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71) adds signed evidence-based PASS / FAIL / REVIEW, bounded corrections and explicit recovery resolution. Historical Court **Case #2** has proven AI PASS → RESOLVED, whereas newly signed **Case #3** has proven FAIL plus rejected finalize, then terminal conservative REVIEW after invalid AI assessment formatting. [Independent Case #2 evidence](docs/evidence/case-2-v2-finalized.json) · [Case #3 evidence](docs/evidence/case-3-v2-fail-review.json). **V2.1 improves availability only for malformed AI results** with bounded signer-only retry and an assessment audit trail, while preserving the original two-revision cap and PASS-only finalization. [V2.1 release/Studio acceptance guide](docs/VERIFIED_RECOVERY_V21.md) · [V2/V2.1 PR #1](https://github.com/bearbaba/FLOWFAULT/pull/1). **V2.1 is not deployed; Milestone has not been submitted.**
 
 ### Proof-carrying accountability for multi-worker workflows
 
@@ -41,6 +41,16 @@ The YouTube demo walks through the complete workflow on **GenLayer Studionet (ch
 **Receipt #2 status:** `REWORK_SUBMITTED_NOT_VERIFIED`. This is a deliberately precise proof of authorized submission; it does not certify the revised work through another evaluation.
 
 [Watch the full web demo](https://youtu.be/VlPv2M0jXjg) · [Inspect Case #2 in FLOWFAULT](https://flowfault-eight.vercel.app/#verify)
+
+## VerifiedRecovery release progress
+
+| Proof | On-chain status | What it establishes |
+| --- | --- | --- |
+| [Historic Case #2](docs/evidence/case-2-v2-finalized.json) | **V2 RESOLVED** | B signed correction; accepted GenLayer AI PASS on three frozen criteria; explicit hash-bound finalization |
+| [Fresh signed Case #3](docs/evidence/case-3-v2-fail-review.json) | **V2 REVIEW — not resolved** | Signed Court REWORK_B, first correction FAIL, wrong finalize rolled back, corrected second revision received format-validation REVIEW |
+| [V2.1 retry release](docs/VERIFIED_RECOVERY_V21.md) | **NOT DEPLOYED** | New separate contract candidate, signer-only bounded assessment retries for malformed AI output, preserved evidence history and two-correction cap; requires fresh signed acceptance |
+
+The current /recovery.html view supports both V2.0 and the pending V2.1 policy. It will only show the retry action when the configured on-chain contract reports V2.1, a current malformed-format REVIEW, available assessment retries, and the original correction signer. This change does not upgrade existing V2 addresses or rewrite Case #3.
 
 ## Built on GenLayer
 
