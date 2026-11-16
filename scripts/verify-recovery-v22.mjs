@@ -22,7 +22,8 @@ const require=(ok,message)=>{if(!ok)throw Error(message)};
 const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
 const same=(a,b)=>String(a).toLowerCase()===String(b);
 const normalize=s=>s.replace(/\r\n/g,'\n').replace(/\n+$/,'');
-const canonical=x=>JSON.stringify(x,Object.keys(x).sort()); // not used for nested snapshot integrity
+// The frozen Court case fields are shallow scalars; Python canonical JSON sorts these keys.
+const canonical=x=>JSON.stringify(x,Object.keys(x).sort());
 require(addr.test(address||'')&&addr.test(court||'')&&!same(address,court),'Set distinct contract and Court addresses');
 require(Number.isSafeInteger(caseId)&&caseId>0,'Invalid Court case ID');
 
@@ -57,6 +58,8 @@ require(attempt.id===id&&attempt.case_id===caseId&&attempt.role==='B'&&
  attempt.new_sha256===recovery.resolution.revision_sha256&&
  attempt.snapshot_sha256===recovery.resolution.snapshot_sha256,
  'Attempt not linked to signed B worker, matching source digests and RESOLVED receipt');
+require(canonical(attempt.snapshot)===canonical(original)&&sha(canonical(original))===attempt.snapshot_sha256,
+ 'Court snapshot does not match frozen source and original commitment');
 require(attempt.assessment_runs===1&&attempt.assessment_history.length===1&&
  attempt.assessment_history[0].run===1&&attempt.assessment_history[0].verdict==='PASS'&&
  attempt.assessment_history[0].format_fallback===false,'Assessment not first-run PASS');
