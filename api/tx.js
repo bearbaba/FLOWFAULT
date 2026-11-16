@@ -16,7 +16,11 @@ export default async function handler(req,res){
   const outcomes=receipts.map(x=>String(x.execution_result??x.executionResult??'UNKNOWN').toUpperCase());
   // Leader execution can succeed even when validator consensus has no majority.
   // GenLayer exposes the consensus decision separately as resultName.
-  const consensus=String(t.resultName??t.result_name??'UNKNOWN').toUpperCase().replace(/[^A-Z]/g,'');
+  const consensusNames=['IDLE','MAJORITYAGREE','MAJORITYDISAGREE','MAJORITYTIMEOUT','DETERMINISTICVIOLATION','NOMAJORITY'];
+  const rawConsensus=Number(t.result);
+  const consensus=String(t.resultName??t.result_name??
+      (Number.isInteger(rawConsensus)&&rawConsensus>=0&&rawConsensus<consensusNames.length?
+        consensusNames[rawConsensus]:'UNKNOWN')).toUpperCase().replace(/[^A-Z]/g,'');
   const explicit=String(t.txExecutionResultName??'').toUpperCase();
   let execution='UNKNOWN';
   if(['FINISHED_WITH_RETURN','SUCCESS'].includes(explicit))execution='SUCCESS';
