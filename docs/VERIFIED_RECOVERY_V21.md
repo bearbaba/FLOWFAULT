@@ -1,0 +1,83 @@
+# FLOWFAULT VerifiedRecovery V2.1 — release candidate (NOT DEPLOYED)
+
+**Release gate: SOURCE + TESTS READY; ON-CHAIN DEPLOYMENT AND SIGNED ACCEPTANCE PENDING.**
+This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 is live before the deployment and signed checks below.
+
+## Why V2.1 exists — verified failure in V2
+
+In freshly created original Court Case #3, signed GenLayer adjudication persisted `REWORK_B`. V2 round 1 produced a persisted, evidence-cited `FAIL`; attempting to finalize it rolled back as designed. V2 round 2 contained a corrected integer total (50) but accepted AI consensus produced a **format/reference validation fallback**: `{"verdict":"REVIEW","checks":[],"reason":"Assessment format or evidence references could not be verified."}`. V2 prohibits reassessing a stored `REVIEW` and has a two-revision cap, so Case #3 cannot be resolved there.
+
+Sources: [signed Case #3 transaction ledger](VERIFIED_RECOVERY_NEXT_CASE.md) · [independent latest-final evidence export](evidence/case-3-v2-fail-review.json). **Do not misrepresent Case #3 as resolved or assume its corrected revision passed.** A separate historical Case #2 reached live PASS → RESOLVED on V2; see [Case #2 evidence](evidence/case-2-v2-finalized.json).
+
+## Scoped changes
+
+| Safety invariant | V2.1 rule |
+| --- | --- |
+| Only responsible worker may submit a correction | Preserved; SHA-256 of exact submitted bytes must match |
+| No mutable task rules | Frozen original Court agreement/source and signed A/B outputs; same snapshot digest rechecked before each assessment |
+| Submission cap | Still **2 different revisions per Case**, never extended by retry |
+| Initial assessment | `assess_revision(attempt_id)` can run only on the current `SUBMITTED` attempt |
+| Retry eligible | **Only** `REVIEW` with **empty `checks`** and the *exact*, deterministic malformed-format/reference reason |
+| Semantic REVIEW | Three validated checks with a REVIEW criterion are final for the attempt; **cannot** use technical retry |
+| FAIL or PASS | **Cannot** be retried by `retry_format_review`; they remain immutable |
+| Who may retry | **Only the signer of that exact corrective revision**, and only while it is the current attempt |
+| Retry limit | **Initial assessment + at most 2 retries = 3 total AI runs per revision** |
+| Audit | Each accepted assessment run adds an immutable run number, verdict, fallback flag and SHA-256 of canonical assessment; prior history stays on-chain |
+| Resolution | Current stored `PASS` required; `FAIL`, `REVIEW`, and `Undetermined` are never treated as PASS |
+| A→B dependency | Original rule preserved: A PASS leaves `UPSTREAM_VERIFIED_B_REVIEW_REQUIRED`, not full B closure |
+
+The new `retry_format_review(attempt_id)` is a **separate explicit write method**. It does not replace `assess_revision`, mutate the correction text or digest, or override any valid assessment. The new `stats()` advertises `version: "2.1.0"`, `max_attempts: 2`, `max_assessment_runs: 3`, `retry_policy: "FORMAT_REVIEW_ONLY"`. The comparative consensus principle focuses on the three criterion decisions while still requiring evidence-grounded reasons and real literal citations; this may reduce incidental disagreement over wording, but live consensus is not guaranteed.
+
+## Files
+
+- **V2.1 source candidate:** [`contracts/verified_recovery_v21.py`](../contracts/verified_recovery_v21.py). This is the file to use in Studio. Do not upload `verified_recovery_deployed.py` or change its archived V2 source.
+- **Behavior tests:** [`tests/test_verified_recovery_v21.py`](../tests/test_verified_recovery_v21.py), including 10 new retry-specific tests plus the original recovery cases. Tests run under a GenLayer shim; they are **not proof of live validator behavior**.
+- **Updated comparison/wallet UI:** [`recovery.html`](../recovery.html) and [`src/recovery.js`](../src/recovery.js), backwards-compatible with a configured V2 address and exposing retry only when V2.1 actually reports that policy.
+- **On-chain deployment check:** [`scripts/verify-recovery-v21.mjs`](../scripts/verify-recovery-v21.mjs) checks source text, Court binding, policy and optionally actual finalized attempts.
+- **Schema CI:** [`scripts/schema-check.mjs`](../scripts/schema-check.mjs) requires that the versioned new contract expose `retry_format_review`.
+
+## Deploy on GenLayer Studionet (wallet signing required)
+
+1. Review the candidate source on the intended GitHub commit and wait for both GitHub CI workflows to succeed. Do not import an older V2 file in place of V2.1.
+2. Open [GenLayer Studio](https://studio.genlayer.com/) on **Studionet, chain ID 61999**. Use *New Contract → Add From File* (or paste the **exact candidate source**) and deploy **`VerifiedRecovery`** from `contracts/verified_recovery_v21.py`.
+3. Constructor `court_address`: **`0x02A5476d786f55a215B33d77bdb071acB787182b`**. Sign with a wallet you control in **Normal** mode, Simulation Mode off. Save the **new contract address** and deploy transaction hash; `FINALIZED` alone does not prove successful execution.
+4. Verify `stats()` live: `version=2.1.0`, `max_attempts=2`, `max_assessment_runs=3`, `retry_policy=FORMAT_REVIEW_ONLY`, criteria `agreement/source/dependency`, original Court binding. Reject any mismatch.
+5. Independently download the **deployed source bytes**, compare normalized candidate source, archive the exact deployed bytes as a **new** `contracts/verified_recovery_v21_deployed.py` only after actual deployment, and record its SHA-256 and deployment details. Never replace `verified_recovery_deployed.py`.
+6. To verify locally against the actual V2.1 address:
+   ```bash
+   FLOWFAULT_COURT_ADDRESS=0x02A5476d786f55a215B33d77bdb071acB787182b \
+   FLOWFAULT_VERIFIED_RECOVERY_ADDRESS=<ACTUAL_NEW_V21_ADDRESS> \
+   npm run verify:recovery:v21
+   ```
+   For a populated recovery, also set `FLOWFAULT_VERIFY_CASE=3`. This command is **read-only**.
+7. Configure a **separate Vercel preview** `FLOWFAULT_VERIFIED_RECOVERY_ADDRESS` to the new address; do not modify the production V1 deployment before live acceptance. `/recovery.html` checks the linked contract's version/policy and reads `LATEST_FINAL`.
+
+## Signed acceptance on the NEW V2.1 address — not yet performed
+
+The same **immutable original HandoffCourt Case #3** can be reused as a *new, independent V2.1 recovery*, because the V2.1 deployment has its own fresh storage. This does **not** alter or repair the terminal REVIEW in historical V2. It avoids inventing a new Court adjudication solely to replay the previously validated task.
+
+- Confirm V2.1 `get_recovery(3).state=NOT_STARTED`, `attempts=[]` and the original Court `DECIDED/REWORK_B`.
+- Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signs `submit_revision(3, corrected_output, SHA256)` on **NEW V2.1 address**, using the correct report:
+  ```json
+  {"reportedTotal":50,"summary":"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50."}
+  ```
+  Exact SHA-256: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. This starts the new deployment's own round 1 and returns its **actual new global attempt ID** (do not assume ID = 3).
+- Run `assess_revision(attempt_id)` in Normal full consensus. After finality, read `get_attempt` and `get_recovery` independently. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
+- **If `REVIEW` due to invalid assessment structure/quotes**, the *original signing Worker B* can call `retry_format_review(attempt_id)` at most **twice** on the *same* attempt, with each accepted retry's audit stored. **Do not use this method for a valid semantic REVIEW, FAIL or PASS.** The retry method cannot guarantee PASS.
+- **Only if Accepted consensus has persisted `PASS`** may anyone call `finalize_recovery(3,attempt_id)`. Verify the finalized `RESOLVED` state and matching snapshot/revision SHA-256. If PASS is not obtained, keep the true FAIL/REVIEW outcome and stop. If correction rounds remain, a separate, truly distinct revision may be submitted under existing limits, never as a bypass.
+- Record signed transaction hashes, status, execution, consensus (including rotation), `LATEST_FINAL` readbacks, old V2 vs new V2.1 address, screenshot/demo and evidence export. Update the PR only with completed facts.
+
+## Release checklist (all required before Milestone submission)
+
+- [x] Versioned V2.1 source on GitHub; archived V2 source unchanged
+- [x] New retry gate, two-attempt cap, signer restriction and assessment audit implemented
+- [x] Pure/shim tests and JS UI wiring implemented (CI results must be checked for the final commit)
+- [ ] V2.1 new address deployed on Studionet; deploy tx accepted and successful
+- [ ] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
+- [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation
+- [ ] Signed format-fallback retry if it occurs; do **not** manufacture a malformed LLM response
+- [ ] Browser wallet walkthrough and evidence export tested on live new address
+- [ ] Final PR/CI green, concise before/after demo and accurately scoped Milestone evidence
+- [ ] **Only then** submit GenLayer Builder Milestone; no milestone submitted by this PR
+
+**Security boundary:** this release improves recovery from *unverifiable AI output*, not from a substantive judgment. It intentionally makes no claim about real-world off-chain execution, payouts, or unseen external events.
