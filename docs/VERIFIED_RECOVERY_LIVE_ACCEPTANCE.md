@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — live Studionet acceptance ledger
 
-**Status: PARTIAL, not milestone-ready.** This document separates observed finalized reads from user-signed transactions that have not yet been executed. Do not claim a PASS or completed case based on synthetic fixture results.
+**Status: PARTIAL, not milestone-ready.** The first V2 revision has been signed, finalized, and independently read back. AI assessment, finalization, and new-case demonstrations remain pending. This ledger distinguishes observed on-chain results from unexecuted steps. Do not claim a PASS or completed case based on synthetic fixture results.
 
 ## Immutable baseline and deployment
 
@@ -57,10 +57,23 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 
 | Event | Transaction URL | Finalized state / note |
 | --- | --- | --- |
-| `submit_revision` Case #2 | PENDING | PENDING |
+| `submit_revision` Case #2 | [0xe0413cba…14a7c4](https://explorer-studio.genlayer.com/tx/0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4) | **FINALIZED / SUCCESS**, returns `1`; finalized `get_recovery(2)` = `SUBMITTED`, latest_attempt `1` |
 | `assess_revision` current attempt | PENDING | PENDING |
 | `finalize_recovery` (only on PASS) | PENDING | PENDING |
 | JSON evidence export | PENDING | PENDING |
+
+### Signed submission and independent finalized readback — 2026-11-16 09:55 ICT
+
+- Transaction: [`0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4`](https://explorer-studio.genlayer.com/tx/0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4).
+- `submit_revision(case_id=2, new_output, new_sha256)` returned **`1`**; execution `SUCCESS`, consensus `Accepted`, transaction `FINALIZED` in Normal mode.
+- Caller: `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`, the designated Worker B.
+- Finalized readback `get_recovery(2)`: `{"attempts":[1],"case_id":2,"latest_attempt":1,"state":"SUBMITTED"}`.
+- Finalized readback `get_attempt(1)`: `case_id=2`, `round=1`, `role=B`, `status=SUBMITTED`, `assessment={}`; matching signer and identical `new_output`.
+- Stored revision digest: `0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4`.
+- Stored frozen Court snapshot digest: `8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787`.
+- `stats.attempts=1` in a separate finalized read.
+
+**Next: `assess_revision(1)`.** Its actual consensus transaction hash and persisted assessment are not yet observed. Do not report PASS, FAIL, REVIEW, or resolution until another finalized read proves them.
 
 ## Milestone completion criteria (not yet observed)
 
