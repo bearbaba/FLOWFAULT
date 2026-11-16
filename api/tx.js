@@ -14,6 +14,9 @@ export default async function handler(req,res){
   const receipts=Array.isArray(c.leader_receipt??c.leaderReceipt)?(c.leader_receipt??c.leaderReceipt):
                  (c.leader_receipt??c.leaderReceipt)?[c.leader_receipt??c.leaderReceipt]:[];
   const outcomes=receipts.map(x=>String(x.execution_result??x.executionResult??'UNKNOWN').toUpperCase());
+  // Leader execution can succeed even when validator consensus has no majority.
+  // GenLayer exposes the consensus decision separately as resultName.
+  const consensus=String(t.resultName??t.result_name??'UNKNOWN').toUpperCase().replace(/[\\s_-]/g,'');
   const explicit=String(t.txExecutionResultName??'').toUpperCase();
   let execution='UNKNOWN';
   if(['FINISHED_WITH_RETURN','SUCCESS'].includes(explicit))execution='SUCCESS';
@@ -21,7 +24,7 @@ export default async function handler(req,res){
   else if(outcomes.length&&outcomes.every(x=>x==='SUCCESS'))execution='SUCCESS';
   else if(outcomes.some(x=>['ERROR','FAILURE','FINISHED_WITH_ERROR'].includes(x)))execution='ERROR';
   return res.status(200).json({
-   ok:true,hash,status:String(t.statusName??t.status_name??t.status??'UNKNOWN').toUpperCase(),execution
+   ok:true,hash,status:String(t.statusName??t.status_name??t.status??'UNKNOWN').toUpperCase(),execution,consensus
   });
  }catch(e){return res.status(502).json({ok:false,error:'Transaction status unavailable: '+String(e?.message||e).slice(0,200)})}
 }
