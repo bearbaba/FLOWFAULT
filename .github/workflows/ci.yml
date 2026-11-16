@@ -15,6 +15,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run check:release:v21
+      - run: npm run check:release:v22
       - run: python -m unittest discover -s tests -p 'test_*.py' -v
       - run: npm run build
       - name: Compile contract syntax (not GenVM execution)
