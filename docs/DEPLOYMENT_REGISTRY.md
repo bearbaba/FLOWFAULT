@@ -33,3 +33,16 @@ npm run preflight
 ```
 
 For exact signed transactions, hashes, decisions and the separate transaction-security test records, see the [on-chain evidence ledger](ONCHAIN_EVIDENCE.md).
+
+
+## Separate VerifiedRecovery releases (16 Nov 2026)
+
+| Intelligent Contract | Studionet address | Evidence status |
+| --- | --- | --- |
+| **VerifiedRecovery V2.0** | `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71` | Live, deployed source attested. Historic Court Case #2 PASS → RESOLVED; fresh Court Case #3 FAIL → terminal REVIEW. [Full signed ledger](VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md). |
+| **VerifiedRecovery V2.1** | [`0xcbc76A74B062ec16740355170ffE1700932Db636`](https://studio.genlayer.com/?import-contract=0xcbc76A74B062ec16740355170ffE1700932Db636) | **Studio shows deployed/finalized** with `retry_format_review` ABI. Independent finalized `stats()`, exact deployed-code source match, actual deployment tx execution, and signed V2.1 workflow **not yet attested in this ledger**. |
+
+V2.1 is a *new contract address* attached to the unchanged HandoffCourt; its storage does not rewrite V2 Case #3. The Milestone branch preview's `FLOWFAULT_VERIFIED_RECOVERY_ADDRESS` was switched only for `milestone/verified-rework`, not production. A read-only `/api/verify-v21` endpoint on the branch provides publicly deployed source, schema, and latest-final `stats` to corroborate a byte-level match against [candidate V2.1 source](../contracts/verified_recovery_v21.py). Do not mark accepted until the address's live source, constructor, and policy match.
+
+**V2.1 Studio:** https://studio.genlayer.com/?import-contract=0xcbc76A74B062ec16740355170ffE1700932Db636
+
