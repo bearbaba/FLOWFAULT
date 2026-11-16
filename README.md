@@ -1,6 +1,6 @@
 # FLOWFAULT
 
-> **Verified recovery V2:** A separate [Studionet contract](https://studio.genlayer.com/?import-contract=0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71) and `/recovery.html` add evidence-based `PASS / FAIL / REVIEW`, bounded revisions, and explicit recovery resolution. [Implementation and deployment verification](docs/VERIFIED_RECOVERY.md) · [Finalized readbacks and signed test instructions](docs/VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md) · [V2 PR #1](https://github.com/bearbaba/FLOWFAULT/pull/1). **Signed V2 revision, assessment, and finalization remain unverified; the historic Case #2 demo below is V1.**
+> **Verified recovery V2:** A separate [Studionet contract](https://studio.genlayer.com/?import-contract=0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71) and `/recovery.html` add evidence-based `PASS / FAIL / REVIEW`, bounded revisions, and explicit recovery resolution. [Implementation and deployment verification](docs/VERIFIED_RECOVERY.md) · [Finalized readbacks and signed test instructions](docs/VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md) · [V2 PR #1](https://github.com/bearbaba/FLOWFAULT/pull/1). **Live signed V2 Case #2 recovery is now verified end-to-end:** submit → AI consensus PASS (three criteria) → explicit `RESOLVED`, with all three transaction hashes and immutable readbacks in the acceptance ledger. The historic video demo remains V1; fresh-case and negative-path V2 evidence is still pending.
 
 ### Proof-carrying accountability for multi-worker workflows
 
