@@ -1,6 +1,6 @@
 # FLOWFAULT VerifiedRecovery V2.1 — deployed release under live acceptance
 
-**Release gate: ON-CHAIN V2.1 CODE/SOURCE VERIFIED; FIRST SIGNED CORRECTION CONFIRMED; AI ASSESSMENT & FINALIZATION PENDING.**
+**Release gate: ON-CHAIN V2.1 SOURCE VERIFIED; FIRST SIGNED CORRECTION AND FIRST ACCEPTED FORMAT-FALLBACK REVIEW STORED; BOUNDED RETRY AND FINALIZATION PENDING.**
 This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 PASS/RESOLVED before signed assessment and finalization checks below.
 
 ## Why V2.1 exists — verified failure in V2
@@ -72,6 +72,15 @@ The new `retry_format_review(attempt_id)` is a **separate explicit write method*
 - [Machine-readable independently verified submission](evidence/v21-case-3-attempt-1-submitted.json).
 - **Next unsigned action:** Worker B `assess_revision(attempt_id=1)` on **new V2.1 contract**. Do not submit another revision, call technical retry before an eligible persisted format-fallback REVIEW, or finalize without current persisted PASS. On consensus Undetermined, independently confirm the unchanged state before resubmitting the assessment.
 
+## V2.1 first AI assessment — Accepted technical REVIEW with auditable retry eligibility
+
+- [`assess_revision(1)` signed tx `0xcbb5ff4e78f43b65335c8c3ab92a9da580320435cf075ce8c88d503d667db37d`](https://explorer-studio.genlayer.com/tx/0xcbb5ff4e78f43b65335c8c3ab92a9da580320435cf075ce8c88d503d667db37d) was signed by Worker B on V2.1, Normal mode, **FINALIZED / SUCCESS / MAJORITYAGREE** (0 rotations, 5 initial validators). Returned **REVIEW**.
+- AI equivalence output and persisted attempt assessment: `{"checks":[],"reason":"Assessment format or evidence references could not be verified.","verdict":"REVIEW"}`. This is a *format/reference validation fallback*; do **not** describe it as a substantive assessment of all three criteria or as an accepted PASS.
+- Independent `LATEST_FINAL get_attempt(1)`: `status=REVIEW`, `assessment_runs=1`, `assessment_history=[{"assessment_sha256":"717e13de050520655af943e7f4ca368cf33ef19bc9d5c11c3d6b5e7af39cb40c","format_fallback":true,"run":1,"verdict":"REVIEW"}]`. Revision SHA-256 `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367` and frozen Court snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7` remain unchanged.
+- Independent `LATEST_FINAL get_recovery(3)`: `{"attempts":[1],"case_id":3,"latest_attempt":1,"state":"REVIEW"}`. `stats()` still advertises `max_assessment_runs=3` and `retry_policy=FORMAT_REVIEW_ONLY`; only **1/3** assessment runs used.
+- **Correct next action:** original correction signer Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signs `retry_format_review(attempt_id=1)` on the **new V2.1 contract**; no extra revision and no finalize. This is the first real live test of bounded retry logic and its audit trail; subsequent outcome remains unknown.
+- [Machine-readable proof of persisted REVIEW and retry eligibility](evidence/v21-case-3-initial-review.json).
+
 ## Signed acceptance on the NEW V2.1 address — continued checks
 
 The same **immutable original HandoffCourt Case #3** can be reused as a *new, independent V2.1 recovery*, because the V2.1 deployment has its own fresh storage. This does **not** alter or repair the terminal REVIEW in historical V2. It avoids inventing a new Court adjudication solely to replay the previously validated task.
@@ -82,7 +91,7 @@ The same **immutable original HandoffCourt Case #3** can be reused as a *new, in
   {"reportedTotal":50,"summary":"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50."}
   ```
   Exact SHA-256: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. This started the new deployment's own round 1 and returned its **actual new global attempt ID = 1** (not the old V2 global attempt ID 3).
-- As the **same Worker B signer**, run `assess_revision(attempt_id)` in Normal full consensus. After finality, read `get_attempt` and `get_recovery` independently. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
+- **DONE:** same Worker B signer ran `assess_revision(1)` in Normal full consensus; persisted technical format/reference `REVIEW`, with assessment audit run 1/3. Next is the separate `retry_format_review(1)` write on V2.1, not a duplicate initial assessment. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
 - **If `REVIEW` due to invalid assessment structure/quotes**, the *original signing Worker B* can call `retry_format_review(attempt_id)` at most **twice** on the *same* attempt, with each accepted retry's audit stored. **Do not use this method for a valid semantic REVIEW, FAIL or PASS.** The retry method cannot guarantee PASS.
 - **Only if Accepted consensus has persisted `PASS`** may anyone call `finalize_recovery(3,attempt_id)`. Verify the finalized `RESOLVED` state and matching snapshot/revision SHA-256. If PASS is not obtained, keep the true FAIL/REVIEW outcome and stop. If correction rounds remain, a separate, truly distinct revision may be submitted under existing limits, never as a bypass.
 - Record signed transaction hashes, status, execution, consensus (including rotation), `LATEST_FINAL` readbacks, old V2 vs new V2.1 address, screenshot/demo and evidence export. Update the PR only with completed facts.
@@ -99,7 +108,7 @@ The preview `/recovery.html` only enables initial assessment for the authorized 
 - [x] V2.1 new address deployed on Studionet; chain code and latest-final methods/stats verified (full deployment transaction hash still to be recorded)
 - [x] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
 - [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation (**first signed revision stored; AI assessment pending**)
-- [ ] Signed format-fallback retry if it occurs; do **not** manufacture a malformed LLM response
+- [ ] Signed format-fallback retry — now **eligible** after real accepted `REVIEW`; no retry signed yet. Do **not** manufacture a malformed LLM response
 - [ ] Browser wallet walkthrough and evidence export tested on live new address
 - [ ] Final PR/CI green, concise before/after demo and accurately scoped Milestone evidence
 - [ ] **Only then** submit GenLayer Builder Milestone; no milestone submitted by this PR
