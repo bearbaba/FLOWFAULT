@@ -20,7 +20,7 @@ const expectedVersion='2.2.0';
 const addr=/^0x[0-9a-fA-F]{40}$/;
 const require=(ok,message)=>{if(!ok)throw Error(message)};
 const sha=s=>createHash('sha256').update(s,'utf8').digest('hex');
-const same=(a,b)=>String(a).toLowerCase()===String(b);
+const same=(a,b)=>String(a).toLowerCase()===String(b).toLowerCase();
 const normalize=s=>s.replace(/\r\n/g,'\n').replace(/\n+$/,'');
 // The frozen Court case fields are shallow scalars; Python canonical JSON sorts these keys.
 const canonical=x=>JSON.stringify(x,Object.keys(x).sort());
