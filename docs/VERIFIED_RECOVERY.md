@@ -36,7 +36,7 @@ This is a **new contract deployment**, not an upgrade to either original contrac
 - Vite production build.
 - Unsigned Studionet schema generation for the three contracts, including the new VerifiedRecovery ABI.
 
-These are implementation checks. Signed V2 acceptance is still pending; the historical V1 ledger does not establish V2 execution.
+These are implementation checks and not a substitute for consensus. Signed V2 evidence has now been established separately: historical Court Case #2 V2 PASS → RESOLVED, and fresh Court Case #3 V2 FAIL → terminal REVIEW. See [live acceptance ledger](VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md).
 
 ## Deploy in Studio
 
@@ -71,6 +71,10 @@ Do not promise a predetermined AI result. Use a separate case if the two-attempt
 
 Portal **milestone v1** is the submission sequence; **VerifiedRecovery V2** is the product release. Before submission, link the actual diff/PR, deployed source proof, signed positive/negative evidence and a short new demo. Verify the accepted project snapshot against the portal to establish the precise before/after boundary. Keep the Changes & Improvements field under 1,000 characters and describe only verified delivered behavior.
 
+## Important live limitation — Case #3 (16 November 2026)
+
+The [fresh signed acceptance test](evidence/case-3-v2-fail-review.json) identified a liveness trade-off: round 1 persisted FAIL and was provably barred from finalization; round 2 submitted arithmetically corrected evidence but the AI output failed structural/evidence-reference validation, so the deterministic fallback persisted `REVIEW` with empty `checks`. This conservative behavior avoids a false PASS. However, this release cannot reassess an already-assessed REVIEW, and its two-revision cap is exhausted for Case #3. **No upgrade or remediation has been deployed**. Case #3 remains REVIEW, while separate historical Case #2 was successfully RESOLVED. Any retry policy for malformed-output REVIEW would need independent security review, versioned redeployment, and new signed acceptance; do not alter the archived deployed source.
+
 ## Deployment verified — 16 November 2026
 
 - VerifiedRecovery: `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`.
@@ -78,4 +82,4 @@ Portal **milestone v1** is the submission sequence; **VerifiedRecovery V2** is t
 - Court binding: `0x02A5476d786f55a215B33d77bdb071acB787182b`.
 - `contracts/verified_recovery_deployed.py` preserves exact source bytes retrieved from chain, SHA-256 `7581207c462bc57cc3456e1a00cc72b2709e76e8cb4852d0f1d4945b5717d82b`.
 - Editable source differs only by CRLF versus LF and final newline. Both byte-level archive matching and line-ending-normalized development source matching are required by the verifier.
-- Deployment is established; signed revision/assessment/finalization evidence is pending.
+- Deployment is established. Signed evidence: [Case #2 PASS → RESOLVED](evidence/case-2-v2-finalized.json) and [fresh Case #3 FAIL → REVIEW](evidence/case-3-v2-fail-review.json). The latter did **not** resolve; conservative REVIEW fallback could not be reassessed after the two submission rounds on the immutable current deployment. Follow [signed acceptance ledger](VERIFIED_RECOVERY_LIVE_ACCEPTANCE.md) for actual finality.
