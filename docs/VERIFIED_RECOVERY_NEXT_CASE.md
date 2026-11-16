@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — fresh-case signed negative-to-positive acceptance plan
 
-**NOT EXECUTED. NO TRANSACTION HASH, AI VERDICT OR CASE ID EXISTS YET.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
+**IN PROGRESS — fresh Court Case #3 created and finalized; worker artifacts and all subsequent transactions remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
 
 ## Network and signers
 
@@ -15,7 +15,7 @@
 
 ## Phase 1 — New original Court case (not yet signed)
 
-1. Owner calls `open_case(worker_a,worker_b,task_spec,source_data)` using exact strings below. Save new `case_id` from finalized return; do **not** assume case #3.
+1. **DONE / FINALIZED:** Owner called `open_case(worker_a,worker_b,task_spec,source_data)` using the exact strings below. Returned and independently persisted **Case ID #3**, confirmed by latest-final `get_case(3)`. [Signed transaction](https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f).
 2. Worker A calls `submit_evidence(case_id,output,output_sha256)` with exact A artifact and digest.
 3. Worker B calls `submit_evidence(case_id,output,output_sha256)` with exact **incorrect B** artifact and digest.
 4. Owner calls `open_dispute(case_id,reason)` with the statement below, then calls `adjudicate(case_id)`. Record actual finalized verdict. **Continue V2 only if persisted `REWORK_B`;** another verdict is not a failed transaction and must not be mislabeled as REWORK_B.
@@ -68,6 +68,15 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 
 **Sanity check:** Approved invoices are 31 + 19 = **50**, not 55. `INV5` amount 14 is unapproved. AI verdict remains nondeterministic and must be taken from persisted state.
 
+### Case #3 observed initial-state readback — 2026-11-16
+
+- Signed `open_case` transaction: [0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f](https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f), Normal execution, five initial validators, `FINALIZED / SUCCESS`, returned `3`.
+- Verified latest-final Court `get_case(3)`: owner `0x4c7cb73ac8f8999af21cfc9ff4cf2333a9508dcb`, Worker A `0x60bfdf6315294c7856acdc0b80d7bd40217debff`, Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`.
+- Task and source exactly match this fixture. Source digest: `96e2a5374e92c68d6f59e91f02192cedd40536b1282af289dcbf616b116f2094`.
+- Verified latest-final stage `OPEN`, verdict `PENDING`, worker A/B output fields and hashes empty. Court `totals.cases=3`.
+- Verified latest-final V2 `get_recovery(3)` = `{"attempts":[],"case_id":3,"latest_attempt":0,"state":"NOT_STARTED"}`.
+- **Next signer:** Worker A on HandoffCourt, `submit_evidence(case_id=3, output=exact Worker A artifact below, output_sha256=listed digest)`. Nothing is claimed signed for Worker A yet.
+
 ## Phase 2 — V2 negative revision; if accepted as REWORK_B
 
 1. Worker B calls `submit_revision(new_case_id, bad_revision, bad_revision_sha256)` on **VerifiedRecovery V2**, not the legacy RecoveryGate. Wait for finalized success and retrieve the actual new attempt ID.
@@ -99,7 +108,8 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 
 | Step | New transaction hash | Finalized result |
 | --- | --- | --- |
-| Court open / A sign / B sign / dispute / adjudicate | PENDING | PENDING |
+| Court `open_case` | [0x9cb6ef…13b22f](https://explorer-studio.genlayer.com/tx/0x9cb6ef264f37ffae82ded480af5b7281bf4ac7863a0297e97530d5fad013b22f) | **FINALIZED / SUCCESS**; latest-final Court `get_case(3)` confirms owner, assigned workers, immutable task/source, `stage=OPEN`, `verdict=PENDING` |
+| Court A sign / B sign / dispute / adjudicate | PENDING | PENDING |
 | V2 first revision / first assessment | PENDING | PENDING |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
