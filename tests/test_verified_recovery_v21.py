@@ -161,7 +161,7 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(a['assessment_runs'],3)
         self.assertEqual(len(a['assessment_history']),3)
         with self.assertRaisesRegex(UserError,'retry limit'): self.g.retry_format_review(i)
-        j=self.submit('Another distinct correction')
+        j=self.submit('Reported total: 22')
         self.assertEqual(json.loads(self.g.get_attempt(j))['round'],2)
         self.answer('FAIL'); self.assertEqual(self.g.assess_revision(j),'FAIL')
         with self.assertRaisesRegex(UserError,'two-attempt limit'): self.submit('Third correction')
