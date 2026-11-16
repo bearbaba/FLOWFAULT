@@ -11,7 +11,9 @@
     "preflight": "node scripts/preflight.mjs",
     "schema:studionet": "node scripts/schema-check.mjs",
     "test:contracts": "python -m unittest discover -s tests -p 'test_*.py' -v",
-    "verify:recovery": "node scripts/verify-recovery.mjs"
+    "verify:recovery": "node scripts/verify-recovery.mjs",
+    "verify:recovery:v21": "node scripts/verify-recovery-v21.mjs",
+    "check:release:v21": "node --check scripts/verify-recovery-v21.mjs && node --check src/recovery.js"
   },
   "dependencies": {
     "genlayer-stable": "npm:genlayer-js@1.1.8"
