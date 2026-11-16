@@ -16,7 +16,7 @@ Sources: [signed Case #3 transaction ledger](VERIFIED_RECOVERY_NEXT_CASE.md) · 
 | Only responsible worker may submit a correction | Preserved; SHA-256 of exact submitted bytes must match |
 | No mutable task rules | Frozen original Court agreement/source and signed A/B outputs; same snapshot digest rechecked before each assessment |
 | Submission cap | Still **2 different revisions per Case**, never extended by retry |
-| Initial assessment | `assess_revision(attempt_id)` can run only on the current `SUBMITTED` attempt |
+| Initial assessment | `assess_revision(attempt_id)` can run only on the current `SUBMITTED` attempt **signed by its original revision submitter**; unrelated callers cannot consume assessments |
 | Retry eligible | **Only** `REVIEW` with **empty `checks`** and the *exact*, deterministic malformed-format/reference reason |
 | Semantic REVIEW | Three validated checks with a REVIEW criterion are final for the attempt; **cannot** use technical retry |
 | FAIL or PASS | **Cannot** be retried by `retry_format_review`; they remain immutable |
@@ -62,10 +62,14 @@ The same **immutable original HandoffCourt Case #3** can be reused as a *new, in
   {"reportedTotal":50,"summary":"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50."}
   ```
   Exact SHA-256: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. This starts the new deployment's own round 1 and returns its **actual new global attempt ID** (do not assume ID = 3).
-- Run `assess_revision(attempt_id)` in Normal full consensus. After finality, read `get_attempt` and `get_recovery` independently. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
+- As the **same Worker B signer**, run `assess_revision(attempt_id)` in Normal full consensus. After finality, read `get_attempt` and `get_recovery` independently. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
 - **If `REVIEW` due to invalid assessment structure/quotes**, the *original signing Worker B* can call `retry_format_review(attempt_id)` at most **twice** on the *same* attempt, with each accepted retry's audit stored. **Do not use this method for a valid semantic REVIEW, FAIL or PASS.** The retry method cannot guarantee PASS.
 - **Only if Accepted consensus has persisted `PASS`** may anyone call `finalize_recovery(3,attempt_id)`. Verify the finalized `RESOLVED` state and matching snapshot/revision SHA-256. If PASS is not obtained, keep the true FAIL/REVIEW outcome and stop. If correction rounds remain, a separate, truly distinct revision may be submitted under existing limits, never as a bypass.
 - Record signed transaction hashes, status, execution, consensus (including rotation), `LATEST_FINAL` readbacks, old V2 vs new V2.1 address, screenshot/demo and evidence export. Update the PR only with completed facts.
+
+## Frontend and transaction-finality safeguards
+
+The preview `/recovery.html` only enables initial assessment for the authorized submitting worker on V2.1, whereas the already deployed V2 remains backward-compatible. Read-only browsing does not require a wallet. The transaction-status API now exposes the consensus result (`MajorityAgree`, `NoMajority`, etc.) alongside GenVM execution and the stored status. A finalized transaction whose leader returned successfully but validators recorded `NoMajority` is **not** classified as a committed success. Every write also requires matching `LATEST_FINAL` readback before displaying success. This addresses the live V2 Undetermined scenario from Case #3 without retroactively relabeling it.
 
 ## Release checklist (all required before Milestone submission)
 
