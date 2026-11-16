@@ -80,3 +80,18 @@ test('V2.1 restricts initial assessment to the worker who signed the current att
  assert.equal(recoveryActions(c,r,'0xb',{...a,actor:'0xa'},policy).assess,false);
  assert.equal(recoveryActions(c,r).assess,true); // deployed V2.0 interface retains old behavior
 });
+
+test('V2.2 signed retry uses identical format-only policy with deterministic citation IDs',()=>{
+ const policy={version:'2.2.0',retry_policy:'FORMAT_REVIEW_ONLY',
+   citation_mode:'DETERMINISTIC_REFERENCE_IDS',max_assessment_runs:3};
+ const fallback={verdict:'REVIEW',checks:[],reason:'Assessment format or evidence references could not be verified.'};
+ const attempt={...a,id:2,actor:'0xb',status:'REVIEW',assessment:fallback,assessment_runs:1};
+ const state={...r,state:'REVIEW'};
+ assert.equal(recoveryActions(c,state,'0xb',attempt,policy).retry,true);
+ assert.equal(recoveryActions(c,state,'0xa',attempt,policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',{...attempt,assessment_runs:3},policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',{...attempt,status:'FAIL'},policy).retry,false);
+ assert.equal(recoveryActions(c,{...state,latest_attempt:3},'0xb',attempt,policy).retry,false);
+ assert.equal(recoveryActions(c,{...r,state:'SUBMITTED'},'0xb',{...attempt,status:'SUBMITTED'},policy).assess,true);
+ assert.equal(recoveryActions(c,{...r,state:'SUBMITTED'},'0xa',{...attempt,status:'SUBMITTED'},policy).assess,false);
+});
