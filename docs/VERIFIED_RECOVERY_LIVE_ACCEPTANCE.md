@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — live Studionet acceptance ledger
 
-**Status: PARTIAL, not milestone-ready.** Signed V2 revision and GenLayer assessment have both been finalized and independently read back: Case #2 attempt #1 is PASS across agreement/source/dependency. Explicit finalization and new-case demonstrations remain pending. This ledger distinguishes observed on-chain results from unexecuted steps. Do not claim a PASS or completed case based on synthetic fixture results.
+**Status: V2 Case #2 signed end-to-end recovery VERIFIED; Milestone acceptance still PARTIAL.** Signed submission, AI consensus assessment, and explicit finalization are all `FINALIZED / SUCCESS`. The persisted V2 state is `RESOLVED`, with the revision/snapshot hashes and exact latest attempt recorded. A newly opened post-upgrade case, negative-path signed evidence, A→B dependency demonstration, and final demo are not yet established. Scope is frozen evidence only; no claim of real-world certification.
 
 ## Immutable baseline and deployment
 
@@ -23,7 +23,7 @@ Read through the V2 preview's GET-only `/api/state` using `LATEST_FINAL`; indepe
 | `scope=court&method=get_case&a0=2` | Case `2`, stage `DECIDED`, verdict `REWORK_B` |
 | `scope=recovery&method=get_recovery&a0=2` | `{"attempts":[],"case_id":2,"latest_attempt":0,"state":"NOT_STARTED"}` |
 
-**What this proves:** V2 preview configuration, GenLayer read connectivity, the frozen V1 Court case and empty V2 attempt history. **What this does not prove:** signed revision, AI assessment, finalization, or real-world correctness. The historical V1 RecoveryGate receipt is separate from V2.
+**This table is the historic pre-transaction 02:45 UTC baseline**, showing V2 was initially empty. Later signed readbacks below prove the Case #2 V2 workflow subsequently reached `RESOLVED`. The historical V1 RecoveryGate receipt remains separate.
 
 ## Case #2 — reproducible *smoke test*, not the whole milestone
 
@@ -53,13 +53,13 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 5. **Only if persisted PASS:** call `finalize_recovery(case_id=2,attempt_id=latest_attempt)`; read `get_recovery(2)` again and verify `RESOLVED`, `resolution.attempt_id`, revision SHA-256 and frozen snapshot SHA-256. If FAIL or REVIEW, no finalization is authorized; assess the cited reasons before choosing a different round-2 revision.
 6. Save transaction URLs, finalized readbacks, and a `/recovery.html` JSON export. A V2 signed smoke test on this historic Case #2 is not a new-case end-to-end demo.
 
-### Signed evidence (fill only after successful real transactions)
+### Signed evidence (verified transactions; export pending)
 
 | Event | Transaction URL | Finalized state / note |
 | --- | --- | --- |
 | `submit_revision` Case #2 | [0xe0413cba…14a7c4](https://explorer-studio.genlayer.com/tx/0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4) | **FINALIZED / SUCCESS**, returns `1`; finalized `get_recovery(2)` = `SUBMITTED`, latest_attempt `1` |
 | `assess_revision(1)` Case #2 | [0x48f760…841583](https://explorer-studio.genlayer.com/tx/0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583) | **FINALIZED / SUCCESS**, returned `PASS`; finalized `get_attempt(1)` records three `PASS` checks and `get_recovery(2).state=PASS` |
-| `finalize_recovery` (only on PASS) | PENDING | PENDING |
+| `finalize_recovery(2,1)` Case #2 | [0x1dc89d…c9531e](https://explorer-studio.genlayer.com/tx/0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e) | **FINALIZED / SUCCESS**, returned `RESOLVED`; finalized recovery readback confirms state, scope and both SHA-256 hashes |
 | JSON evidence export | PENDING | PENDING |
 
 ### Signed submission and independent finalized readback — 2026-11-16 09:55 ICT
@@ -73,7 +73,7 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 - Stored frozen Court snapshot digest: `8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787`.
 - `stats.attempts=1` in a separate finalized read.
 
-**Next: `assess_revision(1)`.** Its actual consensus transaction hash and persisted assessment are not yet observed. Do not report PASS, FAIL, REVIEW, or resolution until another finalized read proves them.
+**Historical checkpoint:** assessment was pending immediately after this submission; subsequent signed assessment and finalized resolution are documented below.
 
 ### Signed assessment and independent finalized readback — 2026-11-16 09:58 ICT
 
@@ -83,7 +83,19 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 - Frozen source arithmetic: approved INV1 (12) + approved INV3 (8) = 20; unapproved INV2 (6) excluded. The revision reports 20, consistent with A's original 20.
 - Independent finalized `get_recovery(2)`: `{"attempts":[1],"case_id":2,"latest_attempt":1,"state":"PASS"}`.
 - Revision digest remains `0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4`, Court snapshot digest remains `8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787`.
-- **Next allowable write:** `finalize_recovery(case_id=2, attempt_id=1)`. Since this is a B repair, the **expected** finalized result is `RESOLVED`, but **no such transaction or persisted resolution has yet been observed**.
+- **Historical checkpoint:** `finalize_recovery(2,1)` was eligible after PASS and has since been signed and verified as `RESOLVED`; see the next section.
+
+### Signed finalization and independent finalized readback — 2026-11-16 10:03 ICT
+
+- Transaction: [`0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e`](https://explorer-studio.genlayer.com/tx/0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e).
+- Caller: Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`. `finalize_recovery(case_id=2,attempt_id=1)` in Normal mode, 5 initial validators, 0 rotations; consensus `Accepted`, transaction `FINALIZED / SUCCESS`, returned `RESOLVED`.
+- Independent `LATEST_FINAL` read of `get_recovery(2)`: `state=RESOLVED`, `attempts=[1]`, `latest_attempt=1`. The persisted `resolution` records `attempt_id=1`, `scope=FROZEN_EVIDENCE_ONLY`.
+- `resolution.revision_sha256=0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4` exactly matches `get_attempt(1).new_sha256`.
+- `resolution.snapshot_sha256=8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787` exactly matches `get_attempt(1).snapshot_sha256`.
+- The same `get_attempt(1)` remains `status=PASS`, and all three `agreement/source/dependency` checks remain PASS.
+- The original Court `get_case(2)` still records `stage=DECIDED` and `verdict=REWORK_B` (V1 evidence was not overwritten). V2 resolution is a separate on-chain record.
+
+**Validated outcome:** a complete live, signed, evidence-scoped V2 `REWORK_B` recovery on a pre-existing Court case. This does **not** establish the new-case milestone, A→B or negative-path tests yet.
 
 ## Milestone completion criteria (not yet observed)
 
@@ -94,4 +106,4 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 - All statuses are taken from finalized contract state, not predicted AI output or simulation.
 - Record the new-case IDs, transaction URLs, finalized snapshots, commit SHA, deployment/source checks, and a short demo before moving PR out of Draft or submitting the Milestone.
 
-This ledger intentionally contains **no fabricated transactions or claims of PASS**.
+This ledger records only verified transactions and finalized readbacks. Remaining tests are explicitly flagged as unverified; no fabricated transaction or consensus result is included.
