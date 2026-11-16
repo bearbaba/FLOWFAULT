@@ -1,7 +1,7 @@
-# FLOWFAULT VerifiedRecovery V2.1 — release candidate (NOT DEPLOYED)
+# FLOWFAULT VerifiedRecovery V2.1 — deployed release under live acceptance
 
-**Release gate: ON-CHAIN V2.1 CONTRACT AND SOURCE VERIFIED; SIGNED ACCEPTANCE PENDING.**
-This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 is live before the deployment and signed checks below.
+**Release gate: ON-CHAIN V2.1 CODE/SOURCE VERIFIED; FIRST SIGNED CORRECTION CONFIRMED; AI ASSESSMENT & FINALIZATION PENDING.**
+This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 PASS/RESOLVED before signed assessment and finalization checks below.
 
 ## Why V2.1 exists — verified failure in V2
 
@@ -45,7 +45,7 @@ The new `retry_format_review(attempt_id)` is a **separate explicit write method*
 - Deployed ABI: `submit_revision`, `assess_revision`, `retry_format_review`, `finalize_recovery`, `get_attempt`, `get_recovery`, `stats`.
 - `LATEST_FINAL get_recovery(3)` on **new V2.1**: `{"attempts":[],"case_id":3,"latest_attempt":0,"state":"NOT_STARTED"}`. Same Court Case #3 remains `DECIDED / REWORK_B` and responsible Worker B remains unchanged.
 - [Machine-readable independent deployment checks](evidence/v21-deployment-attestation.json), all source/policy/ABI/initial-state checks passed.
-- **New V2.1 corrective transaction is not yet signed**. Do not call this a successful V2.1 PASS or RESOLVED without additional accepted transactions and latest-final readback.
+- **V2.1 first corrective transaction is now signed and stored**; it is not yet a successful V2.1 PASS or RESOLVED. See verified submission below.
 
 ## Deploy on GenLayer Studionet (wallet signing required)
 
@@ -63,16 +63,25 @@ The new `retry_format_review(attempt_id)` is a **separate explicit write method*
    For a populated recovery, also set `FLOWFAULT_VERIFY_CASE=3`. This command is **read-only**.
 7. Configure a **separate Vercel preview** `FLOWFAULT_VERIFIED_RECOVERY_ADDRESS` to the new address; do not modify the production V1 deployment before live acceptance. `/recovery.html` checks the linked contract's version/policy and reads `LATEST_FINAL`.
 
-## Signed acceptance on the NEW V2.1 address — not yet performed
+## V2.1 first signed revision — Accepted and persisted, 16 November 2026
+
+- Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signed [`submit_revision(3,corrected_output,corrected_sha256)` tx `0xa8edcf2e1fd53ce3d7513fb969da8bc12b73a2e530fb6653f9dc8aa5ba389aa8`](https://explorer-studio.genlayer.com/tx/0xa8edcf2e1fd53ce3d7513fb969da8bc12b73a2e530fb6653f9dc8aa5ba389aa8) to the **new V2.1** address, Normal consensus, 5 initial validators, zero rotations, **FINALIZED / SUCCESS / MAJORITYAGREE**, return value **1**.
+- Independent `LATEST_FINAL get_attempt(1)`: `case_id=3`, `round=1`, `role=B`, authorized Worker B signer, `new_output` contains `reportedTotal=50`, exact SHA-256 `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`, frozen snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7`.
+- `get_attempt(1).status=SUBMITTED`, `assessment={}`, `assessment_history=[]`, `assessment_runs=0`. `LATEST_FINAL get_recovery(3)={"attempts":[1],"case_id":3,"latest_attempt":1,"state":"SUBMITTED"}`.
+- Original Court remains `DECIDED / REWORK_B`; new V2.1 `stats().version=2.1.0`, `retry_policy=FORMAT_REVIEW_ONLY` remain correct.
+- [Machine-readable independently verified submission](evidence/v21-case-3-attempt-1-submitted.json).
+- **Next unsigned action:** Worker B `assess_revision(attempt_id=1)` on **new V2.1 contract**. Do not submit another revision, call technical retry before an eligible persisted format-fallback REVIEW, or finalize without current persisted PASS. On consensus Undetermined, independently confirm the unchanged state before resubmitting the assessment.
+
+## Signed acceptance on the NEW V2.1 address — continued checks
 
 The same **immutable original HandoffCourt Case #3** can be reused as a *new, independent V2.1 recovery*, because the V2.1 deployment has its own fresh storage. This does **not** alter or repair the terminal REVIEW in historical V2. It avoids inventing a new Court adjudication solely to replay the previously validated task.
 
-- Confirm V2.1 `get_recovery(3).state=NOT_STARTED`, `attempts=[]` and the original Court `DECIDED/REWORK_B`.
-- Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signs `submit_revision(3, corrected_output, SHA256)` on **NEW V2.1 address**, using the correct report:
+- **DONE / verified historically:** V2.1 started at `get_recovery(3).state=NOT_STARTED`, `attempts=[]` and original Court `DECIDED/REWORK_B`.
+- **DONE / verified:** Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signed `submit_revision(3, corrected_output, SHA256)` on **NEW V2.1 address**, using the correct report:
   ```json
   {"reportedTotal":50,"summary":"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50."}
   ```
-  Exact SHA-256: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. This starts the new deployment's own round 1 and returns its **actual new global attempt ID** (do not assume ID = 3).
+  Exact SHA-256: `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. This started the new deployment's own round 1 and returned its **actual new global attempt ID = 1** (not the old V2 global attempt ID 3).
 - As the **same Worker B signer**, run `assess_revision(attempt_id)` in Normal full consensus. After finality, read `get_attempt` and `get_recovery` independently. If consensus is Undetermined, **no stored assessment** can be claimed; retry the uncommitted transaction only after final-state verification.
 - **If `REVIEW` due to invalid assessment structure/quotes**, the *original signing Worker B* can call `retry_format_review(attempt_id)` at most **twice** on the *same* attempt, with each accepted retry's audit stored. **Do not use this method for a valid semantic REVIEW, FAIL or PASS.** The retry method cannot guarantee PASS.
 - **Only if Accepted consensus has persisted `PASS`** may anyone call `finalize_recovery(3,attempt_id)`. Verify the finalized `RESOLVED` state and matching snapshot/revision SHA-256. If PASS is not obtained, keep the true FAIL/REVIEW outcome and stop. If correction rounds remain, a separate, truly distinct revision may be submitted under existing limits, never as a bypass.
@@ -89,7 +98,7 @@ The preview `/recovery.html` only enables initial assessment for the authorized 
 - [x] Pure/shim tests and JS UI wiring implemented (CI results must be checked for the final commit)
 - [x] V2.1 new address deployed on Studionet; chain code and latest-final methods/stats verified (full deployment transaction hash still to be recorded)
 - [x] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
-- [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation (**pending**) 
+- [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation (**first signed revision stored; AI assessment pending**)
 - [ ] Signed format-fallback retry if it occurs; do **not** manufacture a malformed LLM response
 - [ ] Browser wallet walkthrough and evidence export tested on live new address
 - [ ] Final PR/CI green, concise before/after demo and accurately scoped Milestone evidence
