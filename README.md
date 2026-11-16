@@ -42,6 +42,8 @@ The YouTube demo walks through the complete workflow on **GenLayer Studionet (ch
 
 [Watch the full web demo](https://youtu.be/VlPv2M0jXjg) · [Inspect Case #2 in FLOWFAULT](https://flowfault-eight.vercel.app/#verify)
 
+> **V2.2 structured-evidence release candidate (NOT DEPLOYED):** The live V2.1 pilot confirmed the signer-only retry audit but repeatedly produced technical REVIEW for an otherwise arithmetically consistent correction. The new [V2.2 source](contracts/verified_recovery_v22.py) requests native structured JSON, lets AI cite deterministic evidence IDs instead of generating fragile verbatim quotes, verifies references against the immutable Court snapshot and still requires a current stored PASS for finalization. [Strict release/STOP criteria](docs/VERIFIED_RECOVERY_V22.md). **Unsigned tests and schema are green; there is no V2.2 deployed address or signed PASS yet.** Do not change production or treat the V2.1 REVIEW as resolved.
+
 ## VerifiedRecovery release progress
 
 | Proof | On-chain status | What it establishes |
