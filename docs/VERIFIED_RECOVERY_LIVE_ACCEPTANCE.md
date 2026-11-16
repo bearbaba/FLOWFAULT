@@ -85,6 +85,10 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 - Revision digest remains `0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4`, Court snapshot digest remains `8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787`.
 - **Historical checkpoint:** `finalize_recovery(2,1)` was eligible after PASS and has since been signed and verified as `RESOLVED`; see the next section.
 
+### Machine-readable finalized evidence
+
+- [Case #2 V2 finality archive](evidence/case-2-v2-finalized.json) includes three finalized transaction hashes, Court and VerifiedRecovery latest-final readbacks, AI criterion reasons and literal evidence references, revision/snapshot hashes and cross-check flags. It is a **public-read snapshot**, not a browser-wallet export or new-case demo.
+
 ### Signed finalization and independent finalized readback — 2026-11-16 10:03 ICT
 
 - Transaction: [`0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e`](https://explorer-studio.genlayer.com/tx/0x1dc89d33cb95d8f51b54224888b604db3142ac7b216123c1cc14d4d244c9531e).
