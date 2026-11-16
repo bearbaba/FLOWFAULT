@@ -72,3 +72,11 @@ test('ordinary V2 assessments remain supported, including conservative semantic 
  assert.equal(recoveryActions(c,old,'0xb').submit,true);
  assert.equal(recoveryActions(c,{...r,state:'SUBMITTED'}).assess,true);
 });
+
+test('V2.1 restricts initial assessment to the worker who signed the current attempt',()=>{
+ const policy={version:'2.1.0',retry_policy:'FORMAT_REVIEW_ONLY',max_assessment_runs:3};
+ assert.equal(recoveryActions(c,r,'0xb',{...a,actor:'0xb'},policy).assess,true);
+ assert.equal(recoveryActions(c,r,'0xa',{...a,actor:'0xb'},policy).assess,false);
+ assert.equal(recoveryActions(c,r,'0xb',{...a,actor:'0xa'},policy).assess,false);
+ assert.equal(recoveryActions(c,r).assess,true); // deployed V2.0 interface retains old behavior
+});
