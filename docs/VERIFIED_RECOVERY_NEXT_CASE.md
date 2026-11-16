@@ -109,6 +109,15 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 - Independent `LATEST_FINAL VerifiedRecovery.get_recovery(3)`: `{"attempts":[],"case_id":3,"latest_attempt":0,"state":"NOT_STARTED"}`. **No V2 revision is signed yet.**
 - **Next:** on VerifiedRecovery `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`, responsible Worker B submits deliberately incorrect new_output `{"reportedTotal":52,"summary":"Corrected approved total 52 from INV4 and INV6."}` with exact SHA-256 `4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`. Independently recomputed UTF-8 SHA-256. Then read actual new attempt ID and run AI assessment. Its final verdict must not be preclaimed.
 
+### Rejected legacy Court write — 2026-11-16 10:31 ICT (expected safeguard, not a V2 revision)
+
+- [Transaction `0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17`](https://explorer-studio.genlayer.com/tx/0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17) was signed by assigned Worker B and reached **`FINALIZED`, but execution `ERROR` / `Rollback`** with message `evidence window closed`. **Do not count as a successful V2 submission.**
+- The attempted method was **HandoffCourt `submit_evidence(case_id=3, ...)`**, NOT VerifiedRecovery V2 `submit_revision`. Court blocks artifact changes after case reaches `DECIDED`.
+- Independent latest-final `get_case(3)` still reads `DECIDED / REWORK_B`, original Worker B evidence still `reportedTotal=55` and its original SHA-256 unchanged.
+- Independent latest-final V2 `get_recovery(3)` still reads `NOT_STARTED`, `latest_attempt=0`, `attempts=[]`. Worker B `recovery_permission.allowed=true` remains unchanged.
+- **Correct next action:** open VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71` and call **`submit_revision`**, not `submit_evidence`, with `case_id=3`, the same 80-byte `new_output={"reportedTotal":52,"summary":"Corrected approved total 52 from INV4 and INV6."}`, and SHA-256 `4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`. Wait for actual new attempt ID, then call V2 `assess_revision`.
+- This is useful **Court late-write rejection evidence only**, not a test of V2 hash mismatch, V2 wrong-wallet authorization, or V2 AI FAIL / REVIEW.
+
 ## Phase 2 — V2 negative revision; now eligible after persisted REWORK_B
 
 1. Worker B calls `submit_revision(new_case_id, bad_revision, bad_revision_sha256)` on **VerifiedRecovery V2**, not the legacy RecoveryGate. Wait for finalized success and retrieve the actual new attempt ID.
@@ -145,6 +154,7 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | Court Worker B `submit_evidence` | [0x154b40…1a6d13](https://explorer-studio.genlayer.com/tx/0x154b4036445940ecba3f04c0bfb985f27e2a97c69ed68541973326ff041a6d13) | **FINALIZED / SUCCESS**, returned `B`; latest-final `get_case(3)` confirms B output and SHA-256 |
 | Court Owner `open_dispute(3)` | [0xe7c1ea…992cc](https://explorer-studio.genlayer.com/tx/0xe7c1eaf0f3ad201b37a8f8e583151815f358143b9c47e9cefc20cb8b242992cc) | **FINALIZED / SUCCESS**; latest-final `get_case(3).stage=DISPUTED`, reason stored, verdict `PENDING` |
 | Court AI `adjudicate(3)` | [0x5ee0c1…85975](https://explorer-studio.genlayer.com/tx/0x5ee0c168cac54a23fec52d411a7534de31664f0bdd4dc49099b0ea95cba85975) | **FINALIZED / SUCCESS**; persisted `DECIDED / REWORK_B`, live `recovery_permission` authorizes Worker B |
+| Rejected late Court `submit_evidence(3)` | [0xf4d939…a5b17](https://explorer-studio.genlayer.com/tx/0xf4d939016bec755c641dee611f92835ab9687edcf05b579d3da5b6562a2a5b17) | **FINALIZED / ERROR / Rollback**; `evidence window closed`; Court and V2 finalized state unchanged (not V2 revision) |
 | V2 first revision / first assessment | PENDING | PENDING |
 | V2 second revision / second assessment | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
