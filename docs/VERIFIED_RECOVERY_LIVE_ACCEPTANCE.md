@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — live Studionet acceptance ledger
 
-**Status: PARTIAL, not milestone-ready.** The first V2 revision has been signed, finalized, and independently read back. AI assessment, finalization, and new-case demonstrations remain pending. This ledger distinguishes observed on-chain results from unexecuted steps. Do not claim a PASS or completed case based on synthetic fixture results.
+**Status: PARTIAL, not milestone-ready.** Signed V2 revision and GenLayer assessment have both been finalized and independently read back: Case #2 attempt #1 is PASS across agreement/source/dependency. Explicit finalization and new-case demonstrations remain pending. This ledger distinguishes observed on-chain results from unexecuted steps. Do not claim a PASS or completed case based on synthetic fixture results.
 
 ## Immutable baseline and deployment
 
@@ -58,7 +58,7 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 | Event | Transaction URL | Finalized state / note |
 | --- | --- | --- |
 | `submit_revision` Case #2 | [0xe0413cba…14a7c4](https://explorer-studio.genlayer.com/tx/0xe0413cba626ed9b489d977a347769ac6210b372cfc7b0c530b9bc5c25c14a7c4) | **FINALIZED / SUCCESS**, returns `1`; finalized `get_recovery(2)` = `SUBMITTED`, latest_attempt `1` |
-| `assess_revision` current attempt | PENDING | PENDING |
+| `assess_revision(1)` Case #2 | [0x48f760…841583](https://explorer-studio.genlayer.com/tx/0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583) | **FINALIZED / SUCCESS**, returned `PASS`; finalized `get_attempt(1)` records three `PASS` checks and `get_recovery(2).state=PASS` |
 | `finalize_recovery` (only on PASS) | PENDING | PENDING |
 | JSON evidence export | PENDING | PENDING |
 
@@ -74,6 +74,16 @@ Expected SHA-256 of the **exact text** above (178 UTF-8 bytes):
 - `stats.attempts=1` in a separate finalized read.
 
 **Next: `assess_revision(1)`.** Its actual consensus transaction hash and persisted assessment are not yet observed. Do not report PASS, FAIL, REVIEW, or resolution until another finalized read proves them.
+
+### Signed assessment and independent finalized readback — 2026-11-16 09:58 ICT
+
+- Transaction: [`0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583`](https://explorer-studio.genlayer.com/tx/0x48f7604891d21aa0e550e794b680517bd11c793b0665e2702edfe2fec4841583).
+- Caller: Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`; `assess_revision(1)` executed in Normal mode with 5 initial validators, 1 rotation, `Accepted` consensus, `FINALIZED / SUCCESS`, and returned `PASS`.
+- Independent finalized `get_attempt(1)` confirms `status=PASS`, `assessment.verdict=PASS`; criterion results: `agreement=PASS`, `source=PASS`, `dependency=PASS`; each has literal evidence references to revision and frozen inputs.
+- Frozen source arithmetic: approved INV1 (12) + approved INV3 (8) = 20; unapproved INV2 (6) excluded. The revision reports 20, consistent with A's original 20.
+- Independent finalized `get_recovery(2)`: `{"attempts":[1],"case_id":2,"latest_attempt":1,"state":"PASS"}`.
+- Revision digest remains `0503cb5d7d19ab6c8628c228a6c43c66f41a47b8d3d35999c21309f45438cbe4`, Court snapshot digest remains `8579ae65ac74ae81a2c411f4d52f8d25321ca7bb2d66e0371dfd3ae8025fb787`.
+- **Next allowable write:** `finalize_recovery(case_id=2, attempt_id=1)`. Since this is a B repair, the **expected** finalized result is `RESOLVED`, but **no such transaction or persisted resolution has yet been observed**.
 
 ## Milestone completion criteria (not yet observed)
 
