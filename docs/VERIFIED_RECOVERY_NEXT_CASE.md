@@ -1,6 +1,6 @@
 # FLOWFAULT V2 — fresh-case signed negative-to-positive acceptance plan
 
-**IN PROGRESS — fresh signed Court Case #3 is `DECIDED / REWORK_B`; V2 first revision (global attempt #2, Case #3 round 1) now has a PERSISTED `FAIL` on all agreement/source/dependency criteria after a second signed AI assessment with Accepted consensus. A prior assessment transaction was Undetermined and did not persist. Round 2 and finalization remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
+**IN PROGRESS — fresh signed Court Case #3 is `DECIDED / REWORK_B`; V2 first revision (global attempt #2 / round 1) has persisted FAIL in all three criteria; signed FAIL finalization was rejected; V2 second correction is now submitted as global attempt #3 / round 2. Second AI assessment and finalization remain pending.** This is a reproducible synthetic fixture for the next Milestone test, separate from the already verified historical Case #2 [RESOLVED proof](evidence/case-2-v2-finalized.json).
 
 ## Network and signers
 
@@ -121,9 +121,9 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 ## Phase 2 — V2 negative revision; now eligible after persisted REWORK_B
 
 1. **DONE / FINALIZED:** Worker B called `submit_revision(case_id=3, bad_revision, bad_revision_sha256)` on **VerifiedRecovery V2**. [Transaction](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) succeeded, returned **global attempt ID `2`** (Case #3 round `1`), and latest-final `get_attempt(2)` and `get_recovery(3)` confirmed exact signed content and digests.
-2. **DONE / Accepted and persisted on retry:** the first `assess_revision(2)` transaction was Undetermined and did not persist; the second [signed assessment transaction](https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d) achieved Accepted consensus, returned `FAIL`, and latest-final state now stores all three FAIL checks. `finalize_recovery(case_id=3,attempt_id=2)` must be rejected by the V2 `verified PASS required` guard. A reverted signed finalize has **not yet** been observed.
-3. **Only if first assessment is FAIL or REVIEW**: Worker B calls `submit_revision(new_case_id, good_revision, good_revision_sha256)`; obtain new attempt ID. Call `assess_revision` and record its actual result. Only on stored `PASS`, call `finalize_recovery`.
-4. Verify that attempt #1 remains immutable, attempt #2 is current, the older attempt cannot be finalized, and `resolution` hashes match the latest attempt.
+2. **DONE / Accepted and persisted on retry:** the first `assess_revision(2)` transaction was Undetermined and did not persist; the second [signed assessment transaction](https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d) achieved Accepted consensus, returned `FAIL`, and latest-final state now stores all three FAIL checks. `finalize_recovery(case_id=3,attempt_id=2)` was subsequently rejected by a signed transaction with `verified PASS required` rollback; see verified guard below.
+3. **DONE / FINALIZED submission:** After persisted FAIL, Worker B signed the distinct second revision: [transaction](https://explorer-studio.genlayer.com/tx/0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4), returning global attempt **3** (Case #3 round **2**). `get_recovery(3)` latest-final now lists `[2,3]` with current state `SUBMITTED`. **NEXT:** run `assess_revision(3)` and read persisted result before considering finalization.
+4. Verify that **Case #3 round 1 = global attempt 2** remains immutable and FAILED, **Case #3 round 2 = global attempt 3** is current, and (only after a committed PASS) resolution hashes match the latest attempt. Attempt #1 belongs to historical Case #2; do not confuse global IDs with per-case rounds.
 
 ### First V2 revision — deliberately still incorrect
 
@@ -135,7 +135,7 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 
 `new_sha256`: `4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`
 
-### Second V2 revision — corrected, conditional on first FAIL/REVIEW
+### Second V2 revision — signed and stored after accepted first FAIL
 
 `new_output`:
 
@@ -182,7 +182,17 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 - Independent `LATEST_FINAL get_recovery(3)` after rollback: `{"attempts":[2],"case_id":3,"latest_attempt":2,"state":"FAIL"}`, **no** `resolution`.
 - Independent `LATEST_FINAL get_attempt(2)` after rollback: `status=FAIL`, stored `agreement/source/dependency` all FAIL, `new_sha256=4cf8445b0d6f1c1fb815b0c11e4fb5d5e27f83fe1b854eb89baaba82e72f656a`, original snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7`.
 - Court `get_case(3)` remains `DECIDED / REWORK_B`. **Security finding supported by on-chain evidence:** a FAIL assessment cannot be used to finalize a recovery; failed finalize did not consume the remaining correction slot.
-- **Next:** Worker B calls the *different*, second `submit_revision(case_id=3,new_output,new_sha256)` on VerifiedRecovery V2. Exact next output shown below: 153 UTF-8 bytes, independently recomputed `SHA-256=074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`. The resulting global attempt ID, AI assessment and eventual resolution are **not yet known**.
+- **Historical checkpoint:** Worker B subsequently signed and stored the second distinct revision, global attempt #3, Case #3 round 2, with the exact output/digest above. Its AI assessment and eventual resolution are still pending.
+
+### Case #3 second corrected revision signed — 2026-11-16 10:56 ICT
+
+- [`submit_revision(3)` tx `0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4`](https://explorer-studio.genlayer.com/tx/0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4): authorized Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af`, VerifiedRecovery V2, Normal mode, 5 initial validators, 0 rotations, Accepted consensus, **FINALIZED / SUCCESS**; returns global attempt ID **3**.
+- `LATEST_FINAL get_attempt(3)`: `case_id=3`, `role=B`, `round=2`, `actor` matches assigned Worker B, `status=SUBMITTED`, `assessment={}`.
+- `new_output={"reportedTotal":50,"summary":"Approved invoices INV4 (31) and INV6 (19) total 50; INV5 (14) is unapproved. This agrees with Worker A approvedTotal 50."}`.
+- `new_sha256=074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367`; frozen snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7`, identical to round 1.
+- `LATEST_FINAL get_recovery(3)={"attempts":[2,3],"case_id":3,"latest_attempt":3,"state":"SUBMITTED"}`. Old `get_attempt(2).status=FAIL` and `assessment.verdict=FAIL` remain persisted with all three checks FAIL; the signed failed-finalization safeguard remains independently proved.
+- `LATEST_FINAL stats.attempts=3` counts **global** attempts across all cases; the contract cap of 2 is **per case**. Both rounds of Case #3 are now used.
+- **Next:** run `assess_revision(attempt_id=3)` as a new signed transaction. The corrected arithmetic suggests a PASS but AI consensus is **not yet observed**. On Undetermined, read finality before acting; only an Accepted persisted PASS can allow `finalize_recovery(3,3)`. Do not send another `submit_revision`.
 
 ## Evidence gate — do not claim until observed
 
@@ -197,7 +207,8 @@ Worker A's approvedTotal is 50 from approved INV4 (31) and INV6 (19). Worker B r
 | V2 first `submit_revision(3)` | [0xde33a8…8d8a8c](https://explorer-studio.genlayer.com/tx/0xde33a8e14ef8a8809a47bf12118e5f8d860218808469765e912aa9796e8d8a8c) | **FINALIZED / SUCCESS**, returned global attempt ID `2`; `get_attempt(2)` status `SUBMITTED`, case `3`, round `1`, and verified hashes |
 | V2 first `assess_revision(2)` | [0xa5b5ab…686a3e](https://explorer-studio.genlayer.com/tx/0xa5b5abc9057688181f8d7a1750d94f6efaaeaaf784a00ddf516beb839b686a3e) | **FINALIZED / consensus UNDETERMINED**, leader GenVM returned `FAIL` with 3/3 checks FAIL, but `LATEST_FINAL get_attempt(2)` is still `SUBMITTED`, `assessment={}`, and `get_recovery(3).state=SUBMITTED`; **no accepted/persisted FAIL** |
 | V2 accepted retry of `assess_revision(2)` | [0xcf25c5…98f8d](https://explorer-studio.genlayer.com/tx/0xcf25c531fb700485041f27872a3cf7cd1978306e753a7abe38ed8a62fbc98f8d) | **FINALIZED / SUCCESS / Accepted**, returned `FAIL`; latest-final `get_attempt(2).status=FAIL`, 3/3 checks FAIL with evidence references, and `get_recovery(3).state=FAIL` |
-| V2 second revision / second assessment | PENDING | PENDING |
+| V2 second `submit_revision(3)` | [0xfdf4f9…a80fd4](https://explorer-studio.genlayer.com/tx/0xfdf4f91c64ec1cbebef79f65d26dd6834a55369f2f597094df31e3febba80fd4) | **FINALIZED / SUCCESS / Accepted**; returned global attempt `3`, Case #3 round `2`; latest-final attempt3 status SUBMITTED, `get_recovery(3).attempts=[2,3]`, previous attempt2 still FAIL |
+| V2 second `assess_revision(3)` | PENDING | PENDING |
 | V2 explicit finalization (only on PASS) | PENDING | PENDING |
 | V2 rejected `finalize_recovery(3,2)` after FAIL | [0x086b96…d4dc4f](https://explorer-studio.genlayer.com/tx/0x086b96465b8be54d731feaf317add9dd86f1075b8486b793cf9c983f62d4dc4f) | **FINALIZED / Accepted / ERROR / Rollback**, `verified PASS required`; latest-final recovery and attempt both remain `FAIL`, no resolution |
 | Other rejected authorization / stale / duplicate actions | PENDING | PENDING |
