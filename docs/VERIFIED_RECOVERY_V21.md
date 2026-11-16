@@ -1,6 +1,6 @@
 # FLOWFAULT VerifiedRecovery V2.1 — release candidate (NOT DEPLOYED)
 
-**Release gate: SOURCE + TESTS READY; ON-CHAIN DEPLOYMENT AND SIGNED ACCEPTANCE PENDING.**
+**Release gate: ON-CHAIN V2.1 CONTRACT AND SOURCE VERIFIED; SIGNED ACCEPTANCE PENDING.**
 This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 is live before the deployment and signed checks below.
 
 ## Why V2.1 exists — verified failure in V2
@@ -35,6 +35,17 @@ The new `retry_format_review(attempt_id)` is a **separate explicit write method*
 - **Updated comparison/wallet UI:** [`recovery.html`](../recovery.html) and [`src/recovery.js`](../src/recovery.js), backwards-compatible with a configured V2 address and exposing retry only when V2.1 actually reports that policy.
 - **On-chain deployment check:** [`scripts/verify-recovery-v21.mjs`](../scripts/verify-recovery-v21.mjs) checks source text, Court binding, policy and optionally actual finalized attempts.
 - **Schema CI:** [`scripts/schema-check.mjs`](../scripts/schema-check.mjs) requires that the versioned new contract expose `retry_format_review`.
+
+## Independent deployment attestation — 16 November 2026 (COMPLETED)
+
+- New contract: [`0xcbc76A74B062ec16740355170ffE1700932Db636`](https://studio.genlayer.com/?import-contract=0xcbc76A74B062ec16740355170ffE1700932Db636). User supplied Studio screenshot showing `FINALIZED` deployment and the `retry_format_review` method; full deploy transaction hash has not yet been supplied.
+- Vercel milestone-branch preview only (production unchanged): [recovery interface](https://flowfault-jmxutcx6i-khaiptk1998-8088s-projects.vercel.app/recovery.html). Config on that preview points to the new V2.1 contract.
+- Public RPC code fetched independently via [read-only source attestation](https://flowfault-jmxutcx6i-khaiptk1998-8088s-projects.vercel.app/api/verify-v21): exact source SHA-256 **`0262a6e3b6425bacd9abce60ed212b671c9dfd5ddaa2443863b29aa106b2d950`**. [Deployed source archive](../contracts/verified_recovery_v21_deployed.py) matches the RPC bytes exactly. [Developer candidate](../contracts/verified_recovery_v21.py) matches after CRLF/LF normalization.
+- `LATEST_FINAL stats()`: `{"version":"2.1.0","max_attempts":2,"max_assessment_runs":3,"retry_policy":"FORMAT_REVIEW_ONLY","criteria":["agreement","source","dependency"],"court":"0x02A5476d786f55a215B33d77bdb071acB787182b","attempts":0}`.
+- Deployed ABI: `submit_revision`, `assess_revision`, `retry_format_review`, `finalize_recovery`, `get_attempt`, `get_recovery`, `stats`.
+- `LATEST_FINAL get_recovery(3)` on **new V2.1**: `{"attempts":[],"case_id":3,"latest_attempt":0,"state":"NOT_STARTED"}`. Same Court Case #3 remains `DECIDED / REWORK_B` and responsible Worker B remains unchanged.
+- [Machine-readable independent deployment checks](evidence/v21-deployment-attestation.json), all source/policy/ABI/initial-state checks passed.
+- **New V2.1 corrective transaction is not yet signed**. Do not call this a successful V2.1 PASS or RESOLVED without additional accepted transactions and latest-final readback.
 
 ## Deploy on GenLayer Studionet (wallet signing required)
 
@@ -76,9 +87,9 @@ The preview `/recovery.html` only enables initial assessment for the authorized 
 - [x] Versioned V2.1 source on GitHub; archived V2 source unchanged
 - [x] New retry gate, two-attempt cap, signer restriction and assessment audit implemented
 - [x] Pure/shim tests and JS UI wiring implemented (CI results must be checked for the final commit)
-- [ ] V2.1 new address deployed on Studionet; deploy tx accepted and successful
-- [ ] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
-- [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation
+- [x] V2.1 new address deployed on Studionet; chain code and latest-final methods/stats verified (full deployment transaction hash still to be recorded)
+- [x] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
+- [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation (**pending**) 
 - [ ] Signed format-fallback retry if it occurs; do **not** manufacture a malformed LLM response
 - [ ] Browser wallet walkthrough and evidence export tested on live new address
 - [ ] Final PR/CI green, concise before/after demo and accurately scoped Milestone evidence
