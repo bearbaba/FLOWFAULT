@@ -37,3 +37,38 @@ test('final record binds the exact attempt and both hashes',()=>{
  assert.equal(verifyRecoveryWrite(record,result,{...a,status:'PASS',role:'A'}),false);
  assert.equal(verifyRecoveryWrite(record,{...result,state:'UPSTREAM_VERIFIED_B_REVIEW_REQUIRED'},{...a,status:'PASS',role:'A'}),true);
 });
+
+test('V2.1 retries only a frozen malformed-format REVIEW and only by the signing worker',()=>{
+ const policy={version:'2.1.0',retry_policy:'FORMAT_REVIEW_ONLY',max_assessment_runs:3};
+ const fallback={verdict:'REVIEW',checks:[],reason:'Assessment format or evidence references could not be verified.'};
+ const current={...a,id:2,actor:'0xb',status:'REVIEW',assessment:fallback,assessment_runs:1};
+ const state={...r,state:'REVIEW'};
+ assert.equal(recoveryActions(c,state,'0xb',current,policy).retry,true);
+ assert.equal(recoveryActions(c,state,'0xa',current,policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',{...current,assessment_runs:3},policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',{...current,assessment:{...fallback,checks:[{criterion:'source',result:'REVIEW'}]}},policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',{...current,assessment:{...fallback,reason:'Real semantic uncertainty'}},policy).retry,false);
+ assert.equal(recoveryActions(c,state,'0xb',current,{...policy,version:'2.0.0'}).retry,false);
+ assert.equal(recoveryActions(c,{...state,latest_attempt:4},'0xb',current,policy).retry,false);
+});
+
+test('V2.1 finalized retry must increment the audit log and preserve the previous evidence hash',()=>{
+ const record={method:'retry_format_review',caseId:1,args:[2],priorAssessmentRuns:1,priorAssessmentHash:'old-review-hash'};
+ const outcome={...a,status:'PASS',assessment:{verdict:'PASS'},assessment_runs:2,
+   assessment_history:[
+     {run:1,verdict:'REVIEW',format_fallback:true,assessment_sha256:'old-review-hash'},
+     {run:2,verdict:'PASS',format_fallback:false,assessment_sha256:'new-pass-hash'}
+   ]};
+ assert.equal(verifyRecoveryWrite(record,{...r,state:'PASS'},outcome),true);
+ assert.equal(verifyRecoveryWrite(record,{...r,state:'REVIEW'},outcome),false);
+ assert.equal(verifyRecoveryWrite(record,{...r,state:'PASS'},{...outcome,assessment_runs:1}),false);
+ assert.equal(verifyRecoveryWrite(record,{...r,state:'PASS'},{...outcome,assessment_history:[{...outcome.assessment_history[0],assessment_sha256:'tampered'},outcome.assessment_history[1]]}),false);
+ assert.equal(verifyRecoveryWrite(record,{...r,state:'PASS'},{...outcome,assessment_history:outcome.assessment_history.slice(0,1)}),false);
+});
+
+test('ordinary V2 assessments remain supported, including conservative semantic REVIEW',()=>{
+ const old={...r,state:'REVIEW'};
+ assert.equal(recoveryActions(c,old,'0xb').retry,false);
+ assert.equal(recoveryActions(c,old,'0xb').submit,true);
+ assert.equal(recoveryActions(c,{...r,state:'SUBMITTED'}).assess,true);
+});
