@@ -9,7 +9,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test tests/*.test.mjs",
     "preflight": "node scripts/preflight.mjs",
-    "schema:studionet": "node scripts/schema-check.mjs"
+    "schema:studionet": "node scripts/schema-check.mjs",
+    "test:contracts": "python -m unittest discover -s tests -p 'test_*.py' -v",
+    "verify:recovery": "node scripts/verify-recovery.mjs"
   },
   "dependencies": {
     "genlayer-stable": "npm:genlayer-js@1.1.8"

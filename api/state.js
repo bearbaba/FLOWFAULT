@@ -9,16 +9,19 @@ const TABLE={
  gate:{address:process.env.FLOWFAULT_RECOVERY_ADDRESS||'',methods:{
   receipt_for:['id'],get_receipt:['id'],stats:[]}}
 };
+const recoveryAddress=process.env.FLOWFAULT_VERIFIED_RECOVERY_ADDRESS||'';
+const recoveryConfigured=()=>ADDRESS.test(recoveryAddress)&&recoveryAddress.toLowerCase()!==TABLE.court.address.toLowerCase()&&recoveryAddress.toLowerCase()!==TABLE.gate.address.toLowerCase();
 const valid=()=>Object.values(TABLE).every(x=>ADDRESS.test(x.address))&&TABLE.court.address.toLowerCase()!==TABLE.gate.address.toLowerCase();
 const clean=e=>JSON.parse(JSON.stringify(e,(_key,v)=>typeof v==='bigint'?v.toString():v));
 export default async function handler(req,res){
  res.setHeader('Cache-Control','no-store');
  if(req.method!=='GET')return res.status(405).json({ok:false,error:'GET only'});
  if(req.query?.op==='config')return res.status(200).json({
-  configured:valid(),chainId:61999,court:TABLE.court.address,gate:TABLE.gate.address});
+  configured:valid(),chainId:61999,court:TABLE.court.address,gate:TABLE.gate.address, recovery:recoveryAddress, recoveryConfigured:valid()&&recoveryConfigured()});
  if(!valid())return res.status(503).json({ok:false,error:'Deploy both contracts and configure server addresses first'});
  const scope=req.query.scope,method=req.query.method;
- const entry=TABLE[scope],types=entry?.methods[method];
+ const entry=scope==='recovery'&&recoveryConfigured()?{address:recoveryAddress,methods:{get_recovery:['id'],get_attempt:['id'],stats:[]}}:Object.hasOwn(TABLE,scope)?TABLE[scope]:null;
+ const types=entry&&Object.hasOwn(entry.methods,method)?entry.methods[method]:null;
  if(!types)return res.status(400).json({ok:false,error:'Read method not allowlisted'});
  const args=[];
  for(let i=0;i<types.length;i++){

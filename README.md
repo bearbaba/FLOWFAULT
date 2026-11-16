@@ -1,5 +1,7 @@
 # FLOWFAULT
 
+> **Verified recovery implementation:** A new `VerifiedRecovery` contract and `/recovery.html` add criterion-based assessment, bounded revision history and explicit resolution. [Changes, validation and Studio deployment guide](docs/VERIFIED_RECOVERY.md). New deployment and signed V2 acceptance are pending; the live evidence below remains V1.
+
 ### Proof-carrying accountability for multi-worker workflows
 
 **When work breaks, responsibility should be traceable.**

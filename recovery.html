@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Verified recovery · FLOWFAULT</title></head>
+<body><header><a href="/">FLOWFAULT /</a><span> VERIFIED RECOVERY</span><button id="connect">Connect wallet</button></header>
+<main><p class="eyebrow">FROM CORRECTION TO RESOLUTION</p><h1>Prove the repair.<br>Preserve the evidence.</h1><p class="intro">Compare each signed revision against the frozen agreement. GenLayer evaluates the evidence; an on-chain record confirms the result.</p>
+<p id="deployment" role="status">Checking deployment…</p>
+<section class="toolbar"><label>Case ID <input id="caseId" type="number" min="1" max="99999999" value="2"></label><button id="load">Load case</button><button id="export" disabled>Export evidence</button></section>
+<p id="message" role="status" aria-live="polite">Load a case to inspect its recovery history. No wallet is needed to read.</p><a id="txLink" hidden target="_blank" rel="noopener">Inspect transaction</a><button id="recheck" hidden>Check pending transaction</button>
+<section id="casePanel" hidden><div class="sectionHeading"><h2>Frozen agreement</h2><strong id="state"></strong></div><p id="agreement"></p><p id="role"></p><details><summary>Source and original evidence</summary><pre id="source"></pre></details>
+<div class="comparison"><div><h3>Original artifact</h3><pre id="original"></pre></div><div><h3>Latest revision</h3><pre id="latest"></pre></div></div>
+<h2>Revision history</h2><div id="history"></div>
+<section class="editor"><h2>Submit a correction</h2><p>The responsible worker may submit up to two distinct revisions. The original agreement remains unchanged. A pending attempt must be assessed before another can be submitted.</p><label for="revision">Exact replacement artifact</label><textarea id="revision" rows="5" minlength="8" maxlength="1200" placeholder="Paste the complete corrected output"></textarea><p id="digest" class="mono">SHA-256 is calculated from the exact text when you submit.</p>
+<div class="actions"><button id="submit" disabled>Sign revision</button><button id="assess" disabled>Assess latest revision</button><button id="finalize" disabled>Confirm verified recovery</button></div></section></section>
+<footer>GenLayer Studionet · Assessment is limited to frozen evidence. An A repair never certifies downstream B output. SHARED and UNVERIFIABLE cases remain outside this release. Historical V1 receipts remain available in the original explorer.</footer></main><script type="module" src="/src/recovery.js"></script></body></html>
