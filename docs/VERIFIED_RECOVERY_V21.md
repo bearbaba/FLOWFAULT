@@ -1,6 +1,6 @@
 # FLOWFAULT VerifiedRecovery V2.1 — deployed release under live acceptance
 
-**Release gate: ON-CHAIN V2.1 SOURCE VERIFIED; FIRST SIGNED CORRECTION AND FIRST ACCEPTED FORMAT-FALLBACK REVIEW STORED; BOUNDED RETRY AND FINALIZATION PENDING.**
+**Release gate: ON-CHAIN V2.1 SOURCE VERIFIED; FIRST SIGNED CORRECTION AND TWO ACCEPTED ASSESSMENT RUNS STORED (INITIAL REVIEW + FIRST REVIEW RETRY); ONE TECHNICAL RETRY REMAINS, FINALIZATION PENDING.**
 This is a **new Intelligent Contract**. It does not upgrade, reset, mutate, or replace the existing Studionet VerifiedRecovery V2 at `0xa7a417F1380e09fD5Bc01436bE3dA0aF94fB0C71`. The original HandoffCourt is unchanged. Do not submit a Milestone claiming V2.1 PASS/RESOLVED before signed assessment and finalization checks below.
 
 ## Why V2.1 exists — verified failure in V2
@@ -81,6 +81,16 @@ The new `retry_format_review(attempt_id)` is a **separate explicit write method*
 - **Correct next action:** original correction signer Worker B `0xd6b8a3a5eb329410d9504784812b8569afa8c2af` signs `retry_format_review(attempt_id=1)` on the **new V2.1 contract**; no extra revision and no finalize. This is the first real live test of bounded retry logic and its audit trail; subsequent outcome remains unknown.
 - [Machine-readable proof of persisted REVIEW and retry eligibility](evidence/v21-case-3-initial-review.json).
 
+## V2.1 first signed technical retry — REVIEW persisted again (16 Nov 2026)
+
+- Worker B [signed `retry_format_review(1)` tx `0x3338ad79e9e5991eac7ec8dcfb98e0dbaa68c255e2e8ba1f0199b198f6755f1a`](https://explorer-studio.genlayer.com/tx/0x3338ad79e9e5991eac7ec8dcfb98e0dbaa68c255e2e8ba1f0199b198f6755f1a) on the **new V2.1** address. Normal execution, 5 initial validators, 1 rotation, **FINALIZED / SUCCESS / MAJORITYAGREE**; return `REVIEW`.
+- Independent `LATEST_FINAL get_attempt(1)`: `status=REVIEW`; `assessment_runs=2`; `assessment.checks=[]`, `reason="Assessment format or evidence references could not be verified."`; `assessment_history` contains **run 1 and run 2**, both `verdict=REVIEW`, `format_fallback=true` and canonical assessment SHA-256 `717e13de050520655af943e7f4ca368cf33ef19bc9d5c11c3d6b5e7af39cb40c`.
+- Independent `LATEST_FINAL get_recovery(3)`: `{"attempts":[1],"case_id":3,"latest_attempt":1,"state":"REVIEW"}` — **not RESOLVED**. The corrected signed artifact SHA-256 `074fdf2305647a4a259f7ff299b024d46d117d5d96ad7157c8f7682c5beb4367` and frozen Court snapshot SHA-256 `ddbc4e41fa32f5e3ecd4dafda5c3b151902a6b296c660fd837832e22219971e7` are unchanged.
+- `stats()` still reports `max_assessment_runs=3`, `retry_policy=FORMAT_REVIEW_ONLY`: **one final technical retry remains**, permitted only to original signer Worker B on the current, format-invalid REVIEW. A further retry after three accepted assessment runs must be rejected.
+- **Conservative limitation:** two accepted calls have now produced the *identical* invalid-format fallback. This proves bounded retry and audit persistence, **not successful recovery of LLM format**. A third retry may repeat the same outcome; never promise PASS. If it does, stop and investigate a separately versioned validation/prompt fix rather than keep signing futile transactions.
+- [Machine-readable latest-final evidence of both audit runs](evidence/v21-case-3-first-retry-review.json).
+- **Next:** call `retry_format_review(attempt_id=1)` **at most once**, signing from Worker B on V2.1, Normal full consensus. Do not `submit_revision`, `assess_revision` or `finalize_recovery` against this REVIEW. Record actual outcome and only finalize if persisted PASS.
+
 ## Signed acceptance on the NEW V2.1 address — continued checks
 
 The same **immutable original HandoffCourt Case #3** can be reused as a *new, independent V2.1 recovery*, because the V2.1 deployment has its own fresh storage. This does **not** alter or repair the terminal REVIEW in historical V2. It avoids inventing a new Court adjudication solely to replay the previously validated task.
@@ -108,7 +118,7 @@ The preview `/recovery.html` only enables initial assessment for the authorized 
 - [x] V2.1 new address deployed on Studionet; chain code and latest-final methods/stats verified (full deployment transaction hash still to be recorded)
 - [x] Deployed **exact** source archive captured + constructor/version/binding checked from `LATEST_FINAL`
 - [ ] At least one signed V2.1 PASS and explicit RESOLVED, or honestly document any limitation (**first signed revision stored; AI assessment pending**)
-- [ ] Signed format-fallback retry — now **eligible** after real accepted `REVIEW`; no retry signed yet. Do **not** manufacture a malformed LLM response
+- [x] **First signed format-fallback retry verified**: on-chain history now stores two accepted REVIEW runs, one retry remains; do **not** manufacture a malformed LLM response.
 - [ ] Browser wallet walkthrough and evidence export tested on live new address
 - [ ] Final PR/CI green, concise before/after demo and accurately scoped Milestone evidence
 - [ ] **Only then** submit GenLayer Builder Milestone; no milestone submitted by this PR
