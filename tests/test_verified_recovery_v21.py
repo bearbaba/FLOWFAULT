@@ -204,4 +204,13 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(st['max_assessment_runs'],3)
         self.assertEqual(st['retry_policy'],'FORMAT_REVIEW_ONLY')
 
+    def test_v21_unauthorized_first_assessment_does_not_consume_a_run(self):
+        i=self.submit()
+        gl.message.sender_address=Address('owner')
+        with self.assertRaisesRegex(UserError,'revision signer only'): self.g.assess_revision(i)
+        a=json.loads(self.g.get_attempt(i))
+        self.assertEqual(a['status'],'SUBMITTED')
+        self.assertEqual(a['assessment_runs'],0)
+        self.assertEqual(a['assessment_history'],[])
+
 if __name__ == '__main__': unittest.main()
