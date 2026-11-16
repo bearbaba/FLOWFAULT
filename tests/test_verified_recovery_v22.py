@@ -239,8 +239,7 @@ class RecoveryTests(unittest.TestCase):
                               else a['snapshot']['a_output'] if ref['field']=='original_a'
                               else a['new_output'] if ref['field']=='revision'
                               else a['snapshot']['b_output'])
-                self.assertRegex(ref['ref_id'],r'^(agreement|source|original_a|original_b|revision):[1-9][0-9]*
-)
+                self.assertRegex(ref['ref_id'],r'^(agreement|source|original_a|original_b|revision):[1-9][0-9]*')
 
     def test_v22_citation_approval_cannot_be_fabricated(self):
         i=self.submit()
